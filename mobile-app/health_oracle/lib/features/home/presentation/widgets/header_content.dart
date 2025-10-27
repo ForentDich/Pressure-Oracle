@@ -33,11 +33,11 @@ class HeaderContent extends StatelessWidget {
   }
 
   String _getGreetingByTime() {
-    final hour = DateTime.now().hour;
+    final hour = 13;
     
-    if (hour >= 5 && hour < 10) {
+    if (hour >= 6 && hour < 12) {
       return 'Доброе утро,';
-    } else if (hour >= 10 && hour < 16) {
+    } else if (hour >= 12 && hour < 16) {
       return 'Добрый день,';
     } else if (hour >= 16 && hour < 20) {
       return 'Добрый вечер,';
