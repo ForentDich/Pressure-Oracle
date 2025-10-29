@@ -25,25 +25,29 @@ class BackgroundGradient extends StatelessWidget {
 
     if (hour >= 6 && hour < 12) {
       return const LinearGradient(
-        colors: [Color(0xFF2fe593), Color(0xFF91feb7)],
+        colors: [Color(0xFFFF0061), Color(0xFFFEC194)],
+        stops: [0, 0.25],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
     } else if (hour >= 12 && hour < 16) {
       return const LinearGradient(
-        colors: [Color(0xFF2f93e5), Color(0xFF91b9fe)],
+        colors: [Color(0xFF4418b8), Color(0xFF00c0ff)],
+        stops: [0, 0.25],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
     } else if (hour >= 16 && hour < 20) {
       return const LinearGradient(
-        colors: [Color(0xFFfa8734), Color(0xFFfad15b)],
+        stops: [0, 0.25],
+        colors: [Color(0xFFff2525), Color(0xFFffe53b)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
     } else {
       return const LinearGradient(
-        colors: [Color(0xFF4e3bac), Color(0xFFdc74b1)],
+        stops: [0, 0.25],
+        colors: [Color(0xFF4a3cdb), Color(0xFFff0a6c)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
@@ -51,14 +55,14 @@ class BackgroundGradient extends StatelessWidget {
   }
 
   Widget _getTimeBasedIcon() {
-    final hour = DateTime.now().hour;
+    final hour =DateTime.now().hour;
 
     if (hour >= 6 && hour < 12) {
       return _buildSticker(icon: Icons.alarm, color: Colors.white);
     } else if (hour >= 12 && hour < 16) {
       return _buildSticker(icon: Icons.wb_sunny_rounded, color: Colors.yellow);
     } else if (hour >= 16 && hour < 20) {
-      return _buildSticker(icon: Icons.light_mode, color: Colors.yellow);
+      return _buildSticker(icon: Icons.light_mode, color: Colors.orange);
     } else {
       return _buildSticker(
         icon: Icons.nightlight_rounded,

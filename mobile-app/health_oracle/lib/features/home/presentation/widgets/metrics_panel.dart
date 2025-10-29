@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:health_oracle/features/home/presentation/widgets/metrics_grid.dart';
+import 'package:health_oracle/features/home/presentation/widgets/add_record_button.dart';
 import '../../../../core/theme/colors.dart';
-import '../../../../core/theme/text_styles.dart';
 
 class MetricsPanel extends StatelessWidget {
   final double top;
@@ -25,10 +26,17 @@ class MetricsPanel extends StatelessWidget {
             topRight: Radius.circular(32),
           ),
         ),
-        child: Center(
-          child: Text(
-            "Сетка плашек появится здесь",
-            style: TextStyles.bodyMedium,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          child: Column(
+            children: [
+              const MetricsGrid(),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: AddRecordButton(onPressed: () {}),
+              ),
+            ],
           ),
         ),
       ),

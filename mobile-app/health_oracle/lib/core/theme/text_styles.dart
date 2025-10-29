@@ -28,4 +28,11 @@ class TextStyles {
     fontWeight: FontWeight.w500, // 500 = Medium
     color: Colors.white,
   );
-}
+  // Добавьте в text_styles.dart
+static const TextStyle labelXSmall = TextStyle(
+  fontFamily: 'Manrope',
+  fontSize: 16,
+  fontWeight: FontWeight.w600,
+  color: Colors.white,
+);
+  }

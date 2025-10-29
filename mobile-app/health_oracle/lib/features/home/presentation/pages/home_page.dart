@@ -12,8 +12,8 @@ class HomePage extends StatelessWidget {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final screenHeight = constraints.maxHeight;
-          final headerHeight = screenHeight * 0.21;
-          final panelTop = headerHeight * 0.85; 
+          final headerHeight = screenHeight * 1;
+          final panelTop = headerHeight * 0.18; 
           
           return Stack(
             children: [
