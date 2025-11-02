@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/text_styles.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/i18n/strings.dart';
 
 class AddRecordButton extends StatelessWidget {
   final VoidCallback? onPressed;
@@ -11,7 +12,7 @@ class AddRecordButton extends StatelessWidget {
   const AddRecordButton({
     super.key,
     this.onPressed,
-    this.label = 'Добавить запись',
+  this.label = Strings.addEntryTitle,
     this.leadingIcon = Icons.add_to_photos,
     this.leadingColor = AppColors.primary,
   });

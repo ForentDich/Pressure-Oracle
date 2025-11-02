@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/widgets/health_card.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/i18n/strings.dart';
 
 class MetricsGrid extends StatelessWidget {
   const MetricsGrid({super.key});
@@ -27,8 +28,8 @@ class MetricsGrid extends StatelessWidget {
               HealthCard(
                 title: 'ДАВЛЕНИЕ',
                 value: '120/80',
-                unit: 'мм рт.ст.',
-                lastUpdate: 'Сегодня',
+                unit: Strings.unitMmHg,
+                lastUpdate: Strings.lastToday,
                 gradient: AppColors.pressureGradient,
                 icon: const Icon(
                   Icons.monitor_heart_outlined,
@@ -40,8 +41,8 @@ class MetricsGrid extends StatelessWidget {
               HealthCard(
                 title: 'ПУЛЬС',
                 value: '72',
-                unit: 'уд/мин',
-                lastUpdate: 'Сегодня',
+                unit: Strings.unitBpm,
+                lastUpdate: Strings.lastToday,
                 gradient: AppColors.pulseGradient,
                 icon: const Icon(
                   Icons.favorite_outline,
@@ -53,8 +54,8 @@ class MetricsGrid extends StatelessWidget {
               HealthCard(
                 title: 'САХАР',
                 value: '5.2',
-                unit: 'ммоль/л',
-                lastUpdate: '2 дня назад',
+                unit: Strings.unitMmol,
+                lastUpdate: Strings.last2Days,
                 gradient: AppColors.sugarGradient,
                 icon: const Icon(
                   Icons.bloodtype_outlined,
@@ -66,8 +67,8 @@ class MetricsGrid extends StatelessWidget {
               HealthCard(
                 title: 'ВЕС',
                 value: '75.2',
-                unit: 'кг',
-                lastUpdate: 'Неделю назад',
+                unit: Strings.unitKg,
+                lastUpdate: Strings.lastWeek,
                 gradient: AppColors.weightGradient,
                 icon: const Icon(
                   Icons.monitor_weight_outlined,

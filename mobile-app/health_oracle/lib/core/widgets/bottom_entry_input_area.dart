@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
 import '../theme/text_styles.dart';
+import '../i18n/strings.dart';
 
 class BottomEntryInputArea extends StatelessWidget {
   final List<String> selectedCategories;
@@ -17,17 +18,17 @@ class BottomEntryInputArea extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: selectedCategories.isEmpty
-            ? const Center(child: Text('Выберите категорию(ии) сверху'))
-            : Column(
+    padding: const EdgeInsets.all(12.0),
+    child: selectedCategories.isEmpty
+      ? Center(child: Text(Strings.choosePlaceholder))
+      : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Выбрано: ${selectedCategories.join(', ')}',
-                      style: TextStyles.bodyMedium.copyWith(color: AppColors.neutral600)),
+          Text('${Strings.selectedPrefix}${selectedCategories.join(', ')}',
+            style: TextStyles.bodyMedium.copyWith(color: AppColors.neutral600)),
                   const SizedBox(height: 6),
-                  Text('Здесь появятся инструменты ввода (пока заглушка).',
-                      style: TextStyles.bodyMedium.copyWith(color: AppColors.neutral600)),
+          Text(Strings.inputToolsPlaceholder,
+            style: TextStyles.bodyMedium.copyWith(color: AppColors.neutral600)),
                 ],
               ),
       ),

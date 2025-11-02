@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/text_styles.dart';
+import '../../../../core/i18n/strings.dart';
 
 class HeaderContent extends StatelessWidget {
   const HeaderContent({super.key});
@@ -15,12 +16,12 @@ class HeaderContent extends StatelessWidget {
             Text(
               _getGreetingByTime(),
               style: TextStyles.titleMedium.copyWith(
-                color: Colors.white, 
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Ромаэль!',
+              Strings.userName,
               style: TextStyles.headlineLarge.copyWith(
                 color: Colors.white,
               ),
@@ -36,13 +37,13 @@ class HeaderContent extends StatelessWidget {
     final hour = DateTime.now().hour;
     
     if (hour >= 6 && hour < 12) {
-      return 'Доброе утро,';
+      return Strings.greetingMorning;
     } else if (hour >= 12 && hour < 16) {
-      return 'Добрый день,';
+      return Strings.greetingDay;
     } else if (hour >= 16 && hour < 20) {
-      return 'Добрый вечер,';
+      return Strings.greetingEvening;
     } else {
-      return 'Доброй ночи,';
+      return Strings.greetingNight;
     }
   }
 }

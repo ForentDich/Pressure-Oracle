@@ -5,7 +5,7 @@ class AppColors {
   static const Color surface = Color(0xFFFFFFFF);
   static const Color primary = Color(0xFF31d8b9);
   
-  // Градиенты для плашек
+
   static const Gradient pressureGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
