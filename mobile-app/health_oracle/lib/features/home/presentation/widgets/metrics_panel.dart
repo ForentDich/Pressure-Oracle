@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:health_oracle/features/home/presentation/widgets/metrics_grid.dart';
 import 'package:health_oracle/features/home/presentation/widgets/add_record_button.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/widgets/bottom_entry_menu.dart';
 
 class MetricsPanel extends StatelessWidget {
   final double top;
@@ -32,10 +33,15 @@ class MetricsPanel extends StatelessWidget {
             children: [
               const MetricsGrid(),
               const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: AddRecordButton(onPressed: () {}),
-              ),
+              AddRecordButton(onPressed: () async {
+                // Open reusable bottom entry menu from core. It returns selected categories on Save.
+                final result = await showBottomEntryMenu(context);
+                // For now just print selected categories.
+                if (result != null) {
+                  // ignore: avoid_print
+                  print('Selected categories from bottom sheet: $result');
+                }
+              }),
             ],
           ),
         ),

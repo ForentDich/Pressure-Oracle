@@ -35,6 +35,8 @@ class AppColors {
   static const Color neutral100 = Color(0xFFF7F8F9);
   static const Color neutral200 = Color(0xFFF0F1F3);
   static const Color neutral600 = Color(0xFF757575);
+
+  static const Color actionPrimary = Color(0xFF4A4C87);
   static const Color buttonBorder = Color(0xFFE9ECEF);
   static const Color cardShadow = Color(0x1F000000); 
 }
