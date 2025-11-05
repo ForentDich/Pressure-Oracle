@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:health_oracle/core/theme/colors.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import '../widgets/bottom_entry_menu.dart';
 import '../widgets/bottom_entry_actions.dart';
@@ -13,6 +14,8 @@ class ModalHelper {
         context: context,
         pageListBuilder: (modalSheetContext) => [
           WoltModalSheetPage(
+            backgroundColor: AppColors.background,
+            surfaceTintColor: Colors.transparent,
             hasTopBarLayer: false,
             isTopBarLayerAlwaysVisible: false,
             stickyActionBar: Builder(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../theme/colors.dart';
 import '../theme/text_styles.dart';
 
-/// A selectable category tile used inside BottomEntryMenu.
 class BottomEntryCategoryTile extends StatelessWidget {
   final String title;
   final bool selected;
