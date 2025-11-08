@@ -119,6 +119,7 @@ class _BottomEntryMenuState extends State<BottomEntryMenu> {
               ),
             ),
           ),
+          
 
           const SizedBox(height: 16), 
 

@@ -19,7 +19,7 @@ class AppColors {
   static const Color neutral900 = Color(0xFF212529);
 
   // Semantic colors
-  static const Color actionPrimary = Color(0xFF4A4C87);
+  static const Color actionPrimary = Color(0xFF353539);
   static const Color buttonBorder = Color(0xFFE9ECEF);
   static const Color cardShadow = Color(0x1F000000);
   

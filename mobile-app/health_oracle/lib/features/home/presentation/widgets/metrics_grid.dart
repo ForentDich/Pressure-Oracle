@@ -1,8 +1,9 @@
-
 import 'package:flutter/material.dart';
 import '../../../../core/widgets/health_card.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/i18n/strings.dart';
+import '../../../metrics/presentation/pages/metrics_container_page.dart';
+import '../../../metrics/domain/metric_factory.dart';
 
 class MetricsGrid extends StatelessWidget {
   const MetricsGrid({super.key});
@@ -14,8 +15,6 @@ class MetricsGrid extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-         
-          
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -36,6 +35,16 @@ class MetricsGrid extends StatelessWidget {
                   color: Colors.white,
                   size: 24,
                 ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MetricsContainerPage(
+                        initialTab: MetricType.pressure,
+                      ),
+                    ),
+                  );
+                },
               ),
               
               HealthCard(
@@ -49,6 +58,16 @@ class MetricsGrid extends StatelessWidget {
                   color: Colors.white,
                   size: 24,
                 ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MetricsContainerPage(
+                        initialTab: MetricType.pulse,
+                      ),
+                    ),
+                  );
+                },
               ),
               
               HealthCard(
@@ -62,6 +81,16 @@ class MetricsGrid extends StatelessWidget {
                   color: Colors.white,
                   size: 24,
                 ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MetricsContainerPage(
+                        initialTab: MetricType.sugar,
+                      ),
+                    ),
+                  );
+                },
               ),
               
               HealthCard(
@@ -75,6 +104,16 @@ class MetricsGrid extends StatelessWidget {
                   color: Colors.white,
                   size: 24,
                 ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MetricsContainerPage(
+                        initialTab: MetricType.weight,
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           ),
