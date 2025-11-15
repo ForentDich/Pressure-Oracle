@@ -19,7 +19,7 @@ class PressureMetric implements MetricInterface {
   String get currentValue => '120/80';
   
   @override
-  String get description => 'Артериальное давление - важный показатель работы сердечно-сосудистой системы. Нормальные значения: 120/80 мм рт.ст.';
+  String get description => 'Артериальное давление? Кушай финики!';
   
   @override
   String get lastUpdate => 'Сегодня 10:30';

@@ -8,22 +8,20 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final screenHeight = constraints.maxHeight;
-          final headerHeight = screenHeight * 1;
-          final panelTop = headerHeight * 0.18; 
-          
-          return Stack(
-            children: [
-              BackgroundGradient(height: headerHeight),
-              HeaderContent(),
-              MetricsPanel(top: panelTop),   
-            ],
-          );
-        },
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenHeight = constraints.maxHeight;
+        final headerHeight = screenHeight * 1;
+        final panelTop = headerHeight * 0.18;
+
+        return Stack(
+          children: [
+            BackgroundGradient(height: headerHeight),
+            HeaderContent(),
+            MetricsPanel(top: panelTop),
+          ],
+        );
+      },
     );
   }
 }
