@@ -1,7 +1,5 @@
 
 import 'package:flutter/material.dart';
-import '../theme/colors.dart';
-import '../theme/text_styles.dart';
 import 'bottom_entry_input_field.dart';
 
 class BottomEntryCategoryContainer extends StatelessWidget {

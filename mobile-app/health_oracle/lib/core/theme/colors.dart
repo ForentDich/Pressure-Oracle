@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   static const Color background = Color(0xFFf6f7f9);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color primary = Color(0xFF31d8b9);
+  static const Color primary = Color(0xFF353539);
   
   // Neutral colors
   static const Color neutral50 = Color(0xFFFAFAFA);
