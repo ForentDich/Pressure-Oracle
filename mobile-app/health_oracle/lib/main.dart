@@ -84,7 +84,7 @@ class _MainNavigatorState extends State<MainNavigator> {
           ),
           _buildNavItem(Icons.history_outlined, Icons.history, 'История', 1),
           _buildCenterButton(),
-          _buildNavItem(Icons.people_outlined, Icons.people, 'Группа', 2),
+          _buildNavItem(Icons.calendar_month_outlined, Icons.calendar_month, 'Расписание', 2),
           Padding(
             padding: const EdgeInsets.only(right: 24),
             child: _buildNavItem(Icons.person_outlined, Icons.person, 'Профиль', 3),

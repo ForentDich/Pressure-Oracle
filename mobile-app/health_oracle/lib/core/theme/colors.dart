@@ -70,4 +70,10 @@ class AppColors {
       colors: [Color(0xFF31d8b9), Color(0xFF2bc4a4)],
     );
 
+  static const Gradient purpleGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
+  );
+
 }

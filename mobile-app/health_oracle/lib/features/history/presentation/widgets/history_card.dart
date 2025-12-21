@@ -40,10 +40,13 @@ class HistoryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.neutral100,
-          width: 1,
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.neutral900.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [
