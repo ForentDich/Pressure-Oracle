@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/history/presentation/pages/history_page.dart';
-import 'features/group/presentation/pages/group_page.dart';
+import 'features/schedule/presentation/pages/schedule_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart';
 import 'core/helpers/modal_helper.dart';
 import 'core/theme/colors.dart';
@@ -40,7 +40,7 @@ class _MainNavigatorState extends State<MainNavigator> {
   final List<Widget> _pages = [
     const HomePage(),
     const HistoryPage(),
-    const GroupPage(),
+    const SchedulePage(),
     const ProfilePage(),
   ];
 

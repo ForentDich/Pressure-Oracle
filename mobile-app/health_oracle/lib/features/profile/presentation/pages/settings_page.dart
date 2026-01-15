@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
-import '../../../../core/theme/text_styles.dart';
-import '../widgets/settings_widgets.dart';
+import '../widgets/settings/settings_widgets.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -23,36 +22,7 @@ class SettingsPage extends StatelessWidget {
             child: Column(
               children: [
                 // Header
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Text(
-                        'Настройки',
-                        style: TextStyles.headlineLarge.copyWith(
-                          color: Colors.white,
-                          fontSize: 24,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                const SettingsHeader(title: 'Настройки'),
                 // White Sheet
                 Expanded(
                   child: Container(
