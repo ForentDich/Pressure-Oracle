@@ -1,37 +1,72 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/theme/text_styles.dart';
+import '../../../../core/i18n/l10n_extension.dart';
+import '../../../../data/data.dart';
 import '../widgets/widgets.dart';
 import 'settings_page.dart';
-import 'edit_profile_page.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  UserProfile _profile = UserProfile(firstName: '');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  void _loadProfile() {
+    final profile = ProfileService.getProfile();
+    if (profile != null) {
+      setState(() {
+        _profile = profile;
+      });
+    }
+  }
+
+  String _formatDate(BuildContext context, DateTime? date) {
+    if (date == null) return context.l10n.notSpecified;
+    return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+  }
+
+  String _formatHeight(BuildContext context, double? height) {
+    if (height == null) return context.l10n.notSpecified;
+    return '${height.toStringAsFixed(0)} ${context.l10n.unitCm}';
+  }
+
+  String _formatWeight(BuildContext context, double? weight) {
+    if (weight == null) return context.l10n.notSpecified;
+    return '${weight.toStringAsFixed(1)} ${context.l10n.unitKg}';
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Gradient Background
           Container(
             height: MediaQuery.of(context).size.height * 0.45,
             decoration: const BoxDecoration(
               gradient: AppColors.purpleGradient,
             ),
           ),
-          // Content
           SafeArea(
             child: Column(
               children: [
-                // Top Bar (Title & Settings)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Профиль',
+                        context.l10n.profile,
                         style: TextStyles.headlineLarge.copyWith(
                           color: Colors.white,
                         ),
@@ -61,13 +96,15 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ),
                 
-                // Profile Header (Avatar, Name, Button)
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 32),
-                  child: ProfileHeader(),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 32),
+                  child: ProfileHeader(
+                    profile: _profile,
+                    onEditComplete: _loadProfile,
+                  ),
                 ),
 
-                // White Sheet with Info Cards
+
                 Expanded(
                   child: Container(
                     width: double.infinity,
@@ -84,24 +121,53 @@ class ProfilePage extends StatelessWidget {
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.fromLTRB(20, 32, 20, 24),
                         child: Column(
-                          children: const [
+                          children: [
                             ProfileCard(
                               icon: Icons.person_outline,
-                              title: 'Личные данные',
+                              title: context.l10n.personalData,
                               items: [
-                                ProfileItem(label: 'Имя', value: 'Иван'),
-                                ProfileItem(label: 'Фамилия', value: 'Петров'),
-                                ProfileItem(label: 'Дата рождения', value: '12.05.1985'),
+                                ProfileItem(
+                                  label: context.l10n.firstName, 
+                                  value: _profile.firstName.isEmpty 
+                                      ? context.l10n.notSpecified 
+                                      : _profile.firstName,
+                                ),
+                                ProfileItem(
+                                  label: context.l10n.birthDate, 
+                                  value: _formatDate(context, _profile.birthDate),
+                                ),
                               ],
                             ),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             ProfileCard(
                               icon: Icons.monitor_weight_outlined,
-                              title: 'Физические параметры',
+                              title: context.l10n.physicalParams,
                               items: [
-                                ProfileItem(label: 'Рост', value: '178 см'),
-                                ProfileItem(label: 'Вес', value: '75 кг'),
+                                ProfileItem(
+                                  label: context.l10n.height, 
+                                  value: _formatHeight(context, _profile.height),
+                                ),
+                                ProfileItem(
+                                  label: context.l10n.weight, 
+                                  value: _formatWeight(context, _profile.weight),
+                                ),
                               ],
+                            ),
+                            const SizedBox(height: 40),
+                            // Debug button - clear all data
+                            TextButton(
+                              onPressed: () async {
+                                await ProfileService.deleteProfile();
+                                if (mounted) {
+                                  _loadProfile();
+                                }
+                              },
+                              child: Text(
+                                'Очистить данные',
+                                style: TextStyles.bodyMedium.copyWith(
+                                  color: Colors.red,
+                                ),
+                              ),
                             ),
                           ],
                         ),

@@ -1,15 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/history/presentation/pages/history_page.dart';
 import 'features/schedule/presentation/pages/schedule_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart';
+import 'features/onboarding/presentation/pages/onboarding_page.dart';
 import 'core/helpers/modal_helper.dart';
 import 'core/theme/colors.dart';
 import 'core/theme/text_styles.dart';
+import 'core/i18n/l10n_extension.dart';
+import 'data/services/profile_service.dart';
+import 'data/services/entry_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ProfileService.init();
+  await EntryService.init();
   runApp(const MyApp());
 }
+
+/// Проверяет, нужен ли onboarding
+bool get needsOnboarding => !ProfileService.hasProfile();
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -22,7 +34,9 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Manrope',
         useMaterial3: true,
       ),
-      home: const MainNavigator(),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: needsOnboarding ? const OnboardingPage() : const MainNavigator(),
     );
   }
 }
@@ -80,14 +94,14 @@ class _MainNavigatorState extends State<MainNavigator> {
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 24),
-            child: _buildNavItem(Icons.home_outlined, Icons.home, 'Главная', 0),
+            child: _buildNavItem(Icons.home_outlined, Icons.home, context.l10n.home, 0),
           ),
-          _buildNavItem(Icons.history_outlined, Icons.history, 'История', 1),
+          _buildNavItem(Icons.history_outlined, Icons.history, context.l10n.history, 1),
           _buildCenterButton(),
-          _buildNavItem(Icons.calendar_month_outlined, Icons.calendar_month, 'Расписание', 2),
+          _buildNavItem(Icons.calendar_month_outlined, Icons.calendar_month, context.l10n.schedule, 2),
           Padding(
             padding: const EdgeInsets.only(right: 24),
-            child: _buildNavItem(Icons.person_outlined, Icons.person, 'Профиль', 3),
+            child: _buildNavItem(Icons.person_outlined, Icons.person, context.l10n.profile, 3),
           ),
         ],
       ),

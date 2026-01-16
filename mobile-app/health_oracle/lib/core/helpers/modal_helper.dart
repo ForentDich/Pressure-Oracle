@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:health_oracle/core/theme/colors.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import '../widgets/bottom_entry_menu.dart';
-import '../widgets/bottom_entry_actions.dart';
 
 
 class ModalHelper {
-  static Future<List<String>?> showBottomEntryMenu(BuildContext context) async {
+  static Future<Map<String, Map<String, String>>?> showBottomEntryMenu(BuildContext context) async {
     final selectedNotifier = ValueNotifier<Set<String>>({});
 
     try {
-      return await WoltModalSheet.show<List<String>>(
+      return await WoltModalSheet.show<Map<String, Map<String, String>>>(
         context: context,
         pageListBuilder: (modalSheetContext) => [
           WoltModalSheetPage(
@@ -18,18 +17,11 @@ class ModalHelper {
             surfaceTintColor: Colors.transparent,
             hasTopBarLayer: false,
             isTopBarLayerAlwaysVisible: false,
-            stickyActionBar: Builder(
-              builder: (ctx) => BottomEntryActions(
-                onCancel: () => Navigator.of(ctx).pop(),
-                onSave: () {
-                  final res = selectedNotifier.value.toList();
-                  Navigator.of(ctx).pop(res);
-                },
-              ),
-            ),
             child: Builder(
-              builder: (modalSheetContext) => BottomEntryMenu(
+              builder: (ctx) => BottomEntryMenu(
                 selectedNotifier: selectedNotifier,
+                onCancel: () => Navigator.of(ctx).pop(),
+                onSave: (data) => Navigator.of(ctx).pop(data),
               ),
             ),
           ),
@@ -39,28 +31,21 @@ class ModalHelper {
     } catch (e) {
       print('WoltModalSheet failed, falling back to showModalBottomSheet: $e');
 
-      return showModalBottomSheet<List<String>>(
+      return showModalBottomSheet<Map<String, Map<String, String>>>(
         context: context,
         isScrollControlled: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.background,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
         builder: (ctx) => SafeArea(
           top: false,
           child: Padding(
             padding: MediaQuery.of(ctx).viewInsets,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                BottomEntryMenu(selectedNotifier: selectedNotifier),
-                Builder(builder: (ctx) {
-                  return BottomEntryActions(
-                    onCancel: () => Navigator.of(ctx).pop(),
-                    onSave: () {
-                      final res = selectedNotifier.value.toList();
-                      Navigator.of(ctx).pop(res);
-                    },
-                  );
-                }),
-              ],
+            child: BottomEntryMenu(
+              selectedNotifier: selectedNotifier,
+              onCancel: () => Navigator.of(ctx).pop(),
+              onSave: (data) => Navigator.of(ctx).pop(data),
             ),
           ),
         ),

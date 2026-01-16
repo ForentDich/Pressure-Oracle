@@ -2,10 +2,11 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
 import '../theme/text_styles.dart';
-import '../i18n/strings.dart';
+import '../i18n/l10n_extension.dart';
 import 'bottom_entry_category_tile.dart';
 import 'bottom_entry_category_container.dart';
 import 'bottom_entry_actions.dart';
+import '../../data/data.dart';
 
 class BottomEntryMenu extends StatefulWidget {
   final void Function(Map<String, Map<String, String>>)? onSave;
@@ -67,16 +68,78 @@ class _BottomEntryMenuState extends State<BottomEntryMenu> {
     
   }
 
-  void _saveData() {
-    final data = <String, Map<String, String>>{};
+  void _saveData() async {
+    print('_saveData called, selected categories: $_selected');
     
+    // Сохраняем записи в Hive
+    for (final category in _selected) {
+      final controllers = _controllers[category]!;
+      
+      switch (category) {
+        case 'Давление':
+          final systolicText = controllers['верхнее']?.text ?? '';
+          final diastolicText = controllers['нижнее']?.text ?? '';
+          print('Давление: systolic="$systolicText", diastolic="$diastolicText"');
+          final systolic = double.tryParse(systolicText);
+          final diastolic = double.tryParse(diastolicText);
+          if (systolic != null) {
+            await EntryService.add(
+              type: EntryType.pressure,
+              value: systolic,
+              secondaryValue: diastolic,
+            );
+            print('Давление сохранено');
+          } else {
+            print('Давление: systolic is null, not saving');
+          }
+          break;
+        case 'Пульс':
+          final pulseText = controllers['пульс']?.text ?? '';
+          print('Пульс: text="$pulseText"');
+          final pulse = double.tryParse(pulseText);
+          if (pulse != null) {
+            await EntryService.add(
+              type: EntryType.pulse,
+              value: pulse,
+            );
+            print('Пульс сохранён');
+          }
+          break;
+        case 'Вес':
+          final weightText = controllers['вес']?.text ?? '';
+          print('Вес: text="$weightText"');
+          final weight = double.tryParse(weightText);
+          if (weight != null) {
+            await EntryService.add(
+              type: EntryType.weight,
+              value: weight,
+            );
+            print('Вес сохранён');
+          }
+          break;
+        case 'Сахар':
+          final sugarText = controllers['сахар']?.text ?? '';
+          print('Сахар: text="$sugarText"');
+          final sugar = double.tryParse(sugarText);
+          if (sugar != null) {
+            await EntryService.add(
+              type: EntryType.sugar,
+              value: sugar,
+            );
+            print('Сахар сохранён');
+          }
+          break;
+      }
+    }
+    
+    // Вызываем callback если есть
+    final data = <String, Map<String, String>>{};
     for (final category in _selected) {
       data[category] = {};
       for (final entry in _controllers[category]!.entries) {
         data[category]![entry.key] = entry.value.text;
       }
     }
-    
     widget.onSave?.call(data);
   }
 
@@ -113,7 +176,7 @@ class _BottomEntryMenuState extends State<BottomEntryMenu> {
           Padding(
             padding: const EdgeInsets.only(bottom: 4.0),
             child: Text(
-              Strings.addEntryTitle, 
+              context.l10n.addEntryTitle, 
               style: TextStyles.titleMedium.copyWith(
                 fontSize: 20, 
               ),

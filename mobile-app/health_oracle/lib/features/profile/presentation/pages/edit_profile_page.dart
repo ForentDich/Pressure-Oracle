@@ -1,17 +1,88 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/theme/text_styles.dart';
+import '../../../../core/i18n/l10n_extension.dart';
+import '../../../../data/data.dart';
 import '../widgets/edit_profile_widgets.dart';
 
-class EditProfilePage extends StatelessWidget {
-  const EditProfilePage({super.key});
+class EditProfilePage extends StatefulWidget {
+  final UserProfile profile;
+
+  const EditProfilePage({
+    super.key,
+    required this.profile,
+  });
+
+  @override
+  State<EditProfilePage> createState() => _EditProfilePageState();
+}
+
+class _EditProfilePageState extends State<EditProfilePage> {
+  late TextEditingController _firstNameController;
+  late TextEditingController _heightController;
+  late TextEditingController _weightController;
+  DateTime? _birthDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _firstNameController = TextEditingController(text: widget.profile.firstName);
+    _heightController = TextEditingController(
+      text: widget.profile.height?.toStringAsFixed(0) ?? '',
+    );
+    _weightController = TextEditingController(
+      text: widget.profile.weight?.toStringAsFixed(1) ?? '',
+    );
+    _birthDate = widget.profile.birthDate;
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _heightController.dispose();
+    _weightController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selectDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _birthDate ?? DateTime(1990),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      locale: const Locale('ru'),
+    );
+    if (picked != null) {
+      setState(() {
+        _birthDate = picked;
+      });
+    }
+  }
+
+  String _formatDate(BuildContext context, DateTime? date) {
+    if (date == null) return context.l10n.notSpecified;
+    return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+  }
+
+  Future<void> _save() async {
+    final newProfile = UserProfile(
+      firstName: _firstNameController.text.trim(),
+      birthDate: _birthDate,
+      height: double.tryParse(_heightController.text),
+      weight: double.tryParse(_weightController.text),
+    );
+    
+    await ProfileService.saveProfile(newProfile);
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Gradient Background
           Container(
             height: MediaQuery.of(context).size.height * 0.35,
             decoration: const BoxDecoration(
@@ -47,7 +118,7 @@ class EditProfilePage extends StatelessWidget {
                           ),
                           const SizedBox(width: 16),
                           Text(
-                            'Редактирование',
+                            context.l10n.editProfile,
                             style: TextStyles.headlineLarge.copyWith(
                               color: Colors.white,
                               fontSize: 24,
@@ -56,9 +127,9 @@ class EditProfilePage extends StatelessWidget {
                         ],
                       ),
                       TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: _save,
                         child: Text(
-                          'Сохранить',
+                          context.l10n.save,
                           style: TextStyles.bodyMedium.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -68,7 +139,7 @@ class EditProfilePage extends StatelessWidget {
                     ],
                   ),
                 ),
-                // White Sheet
+
                 Expanded(
                   child: Container(
                     width: double.infinity,
@@ -126,35 +197,37 @@ class EditProfilePage extends StatelessWidget {
                             ),
                             const SizedBox(height: 32),
                             // Form fields
-                            const EditSection(
-                              title: 'Личные данные',
+                            EditSection(
+                              title: context.l10n.personalData,
                               children: [
-                                EditField(label: 'Имя', value: 'Иван'),
-                                EditField(label: 'Фамилия', value: 'Петров'),
-                                EditField(label: 'Дата рождения', value: '12.05.1985', isDate: true),
+                                EditTextField(
+                                  label: context.l10n.firstName,
+                                  controller: _firstNameController,
+                                ),
+                                EditDateField(
+                                  label: context.l10n.birthDate,
+                                  value: _formatDate(context, _birthDate),
+                                  onTap: _selectDate,
+                                ),
                               ],
                             ),
                             const SizedBox(height: 24),
-                            const EditSection(
-                              title: 'Физические параметры',
+                            EditSection(
+                              title: context.l10n.physicalParams,
                               children: [
-                                EditField(label: 'Рост (см)', value: '178'),
-                                EditField(label: 'Вес (кг)', value: '75'),
+                                EditTextField(
+                                  label: '${context.l10n.height} (${context.l10n.unitCm})',
+                                  controller: _heightController,
+                                  keyboardType: TextInputType.number,
+                                ),
+                                EditTextField(
+                                  label: '${context.l10n.weight} (${context.l10n.unitKg})',
+                                  controller: _weightController,
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 32),
-                            // Delete account
-                            Center(
-                              child: TextButton(
-                                onPressed: () {},
-                                child: Text(
-                                  'Удалить аккаунт',
-                                  style: TextStyles.bodyMedium.copyWith(
-                                    color: AppColors.error500,
-                                  ),
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                       ),

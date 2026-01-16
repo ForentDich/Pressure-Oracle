@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/text_styles.dart';
-import '../../../../core/i18n/strings.dart';
+import '../../../../core/i18n/l10n_extension.dart';
+import '../../../../data/data.dart';
 
 class HeaderContent extends StatelessWidget {
   const HeaderContent({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final profile = ProfileService.getProfile();
+    final displayName = (profile != null && profile.firstName.isNotEmpty)
+        ? '${profile.firstName}!' 
+        : context.l10n.defaultUserName;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -14,14 +20,14 @@ class HeaderContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _getGreetingByTime(),
+              _getGreetingByTime(context),
               style: TextStyles.titleMedium.copyWith(
                 color: Colors.white,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              Strings.userName,
+              displayName,
               style: TextStyles.headlineLarge.copyWith(
                 color: Colors.white,
               ),
@@ -33,17 +39,17 @@ class HeaderContent extends StatelessWidget {
     );
   }
 
-  String _getGreetingByTime() {
+  String _getGreetingByTime(BuildContext context) {
     final hour = DateTime.now().hour;
     
     if (hour >= 6 && hour < 12) {
-      return Strings.greetingMorning;
+      return context.l10n.greetingMorning;
     } else if (hour >= 12 && hour < 16) {
-      return Strings.greetingDay;
+      return context.l10n.greetingDay;
     } else if (hour >= 16 && hour < 20) {
-      return Strings.greetingEvening;
+      return context.l10n.greetingEvening;
     } else {
-      return Strings.greetingNight;
+      return context.l10n.greetingNight;
     }
   }
 }

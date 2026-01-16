@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/theme/text_styles.dart';
+import '../../../../core/i18n/l10n_extension.dart';
+import '../../../../data/data.dart';
 import 'history_filters.dart';
 import 'history_card.dart';
 
@@ -12,107 +14,42 @@ class HistoryListPanel extends StatefulWidget {
 }
 
 class _HistoryListPanelState extends State<HistoryListPanel> {
-  final List<_HistoryItem> _items = [];
+  List<HealthEntry> _entries = [];
   Set<MetricType> _selectedTypes = {};
 
   @override
   void initState() {
     super.initState();
-    _generateMockData();
+    _loadEntries();
   }
 
-  void _generateMockData() {
-    final now = DateTime.now();
-    _items.addAll([
-      _HistoryItem(
-        type: MetricType.pressure,
-        value: '120/80',
-        unit: 'мм рт.ст.',
-        date: now.subtract(const Duration(hours: 2)),
-        status: 'Норма',
-        statusColor: AppColors.success500,
-      ),
-      _HistoryItem(
-        type: MetricType.pulse,
-        value: '64',
-        unit: 'уд/мин',
-        date: now.subtract(const Duration(hours: 2)),
-        status: 'Норма',
-        statusColor: AppColors.success500,
-      ),
-      _HistoryItem(
-        type: MetricType.pulse,
-        value: '98',
-        unit: 'уд/мин',
-        date: now.subtract(const Duration(hours: 2, minutes: 30)),
-        status: 'Высокий',
-        statusColor: AppColors.warning500,
-      ),
-      _HistoryItem(
-        type: MetricType.pressure,
-        value: '115/75',
-        unit: 'мм рт.ст.',
-        date: now.subtract(const Duration(hours: 3)),
-        status: 'Оптимальное',
-        statusColor: AppColors.success500,
-      ),
-      _HistoryItem(
-        type: MetricType.weight,
-        value: '75.5',
-        unit: 'кг',
-        date: now.subtract(const Duration(hours: 4)),
-        secondaryValue: '-0.5',
-        secondaryUnit: 'кг',
-      ),
-      _HistoryItem(
-        type: MetricType.sugar,
-        value: '5.5',
-        unit: 'ммоль/л',
-        date: now.subtract(const Duration(hours: 5)),
-        status: 'Норма',
-        statusColor: AppColors.success500,
-      ),
-      _HistoryItem(
-        type: MetricType.pressure,
-        value: '135/85',
-        unit: 'мм рт.ст.',
-        date: now.subtract(const Duration(days: 1, hours: 4)),
-        status: 'Повышенное',
-        statusColor: AppColors.warning500,
-      ),
-      _HistoryItem(
-        type: MetricType.pulse,
-        value: '72',
-        unit: 'уд/мин',
-        date: now.subtract(const Duration(days: 1, hours: 4)),
-        status: 'Норма',
-        statusColor: AppColors.success500,
-      ),
-      _HistoryItem(
-        type: MetricType.pressure,
-        value: '150/95',
-        unit: 'мм рт.ст.',
-        date: now.subtract(const Duration(days: 2, hours: 3)),
-        status: 'Высокое',
-        statusColor: AppColors.error500,
-      ),
-      _HistoryItem(
-        type: MetricType.pulse,
-        value: '88',
-        unit: 'уд/мин',
-        date: now.subtract(const Duration(days: 2, hours: 3)),
-        status: 'Высокий',
-        statusColor: AppColors.warning500,
-      ),
-    ]);
+  void _loadEntries() {
+    final entries = EntryService.getAll();
+    entries.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    setState(() {
+      _entries = entries;
+    });
   }
 
-  List<_HistoryItem> get _filteredItems {
-    if (_selectedTypes.isEmpty) return _items;
+  List<HealthEntry> get _filteredEntries {
+    if (_selectedTypes.isEmpty) return _entries;
     
-    return _items.where((item) {
-      return _selectedTypes.contains(item.type);
+    return _entries.where((entry) {
+      return _selectedTypes.contains(_entryTypeToMetricType(entry.type));
     }).toList();
+  }
+
+  MetricType _entryTypeToMetricType(EntryType type) {
+    switch (type) {
+      case EntryType.pressure:
+        return MetricType.pressure;
+      case EntryType.pulse:
+        return MetricType.pulse;
+      case EntryType.weight:
+        return MetricType.weight;
+      case EntryType.sugar:
+        return MetricType.sugar;
+    }
   }
 
   void _handleFilterChange(String filterString) {
@@ -144,7 +81,46 @@ class _HistoryListPanelState extends State<HistoryListPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredList = _filteredItems;
+    final filteredList = _filteredEntries;
+
+    if (filteredList.isEmpty) {
+      return Column(
+        children: [
+          HistoryFilters(
+            onFilterChanged: _handleFilterChange,
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.history,
+                    size: 64,
+                    color: AppColors.neutral400,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    context.l10n.historyNoRecords,
+                    style: TextStyles.titleMedium.copyWith(
+                      color: AppColors.neutral500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    context.l10n.historyAddFirst,
+                    style: TextStyles.bodyMedium.copyWith(
+                      color: AppColors.neutral400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
 
     return Column(
       children: [
@@ -157,24 +133,21 @@ class _HistoryListPanelState extends State<HistoryListPanel> {
             padding: const EdgeInsets.only(bottom: 24),
             itemCount: filteredList.length,
             itemBuilder: (context, index) {
-              final item = filteredList[index];
-              final showHeader = index == 0 || !_isSameDay(filteredList[index - 1].date, item.date);
+              final entry = filteredList[index];
+              final showHeader = index == 0 || !_isSameDay(filteredList[index - 1].createdAt, entry.createdAt);
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (showHeader) _buildDateHeader(item.date),
+                  if (showHeader) _buildDateHeader(entry.createdAt),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: HistoryCard(
-                      type: item.type,
-                      value: item.value,
-                      unit: item.unit,
-                      date: item.date,
-                      secondaryValue: item.secondaryValue,
-                      secondaryUnit: item.secondaryUnit,
-                      status: item.status,
-                      statusColor: item.statusColor,
+                      type: _entryTypeToMetricType(entry.type),
+                      value: entry.displayValue,
+                      unit: entry.unit(context),
+                      date: entry.createdAt,
+                      onDelete: () => _showDeleteConfirmation(context, entry),
                     ),
                   ),
                 ],
@@ -184,6 +157,38 @@ class _HistoryListPanelState extends State<HistoryListPanel> {
         ),
       ],
     );
+  }
+
+  Future<void> _showDeleteConfirmation(BuildContext context, HealthEntry entry) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.l10n.deleteEntry),
+        content: Text('${entry.typeName(context)}: ${entry.displayValue} ${entry.unit(context)}'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(
+              context.l10n.cancel,
+              style: TextStyle(color: AppColors.neutral600),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(
+              context.l10n.delete,
+              style: TextStyle(color: AppColors.error500),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      await EntryService.delete(entry.id);
+      _loadEntries();
+    }
   }
 
   Widget _buildDateHeader(DateTime date) {
@@ -221,33 +226,11 @@ class _HistoryListPanelState extends State<HistoryListPanel> {
     final diff = now.difference(date);
 
     if (diff.inDays == 0 && date.day == now.day) {
-      return 'Сегодня';
+      return context.l10n.today;
     } else if (diff.inDays <= 1 && date.day == now.subtract(const Duration(days: 1)).day) {
-      return 'Вчера';
+      return context.l10n.yesterday;
     }
     
     return '${date.day}.${date.month}.${date.year}';
   }
-}
-
-class _HistoryItem {
-  final MetricType type;
-  final String value;
-  final String unit;
-  final DateTime date;
-  final String? secondaryValue;
-  final String? secondaryUnit;
-  final String? status;
-  final Color? statusColor;
-
-  _HistoryItem({
-    required this.type,
-    required this.value,
-    required this.unit,
-    required this.date,
-    this.secondaryValue,
-    this.secondaryUnit,
-    this.status,
-    this.statusColor,
-  });
 }

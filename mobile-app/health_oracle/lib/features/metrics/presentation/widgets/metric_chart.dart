@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 import '../../domain/metric_interface.dart';
 import '../../../../core/theme/text_styles.dart';
 import '../../../../core/theme/colors.dart';
@@ -74,7 +73,6 @@ class MetricChart extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          // X-axis labels
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
@@ -101,7 +99,6 @@ class _ChartPainter extends CustomPainter {
       ..strokeWidth = 3
       ..strokeCap = StrokeCap.round;
 
-    // Grid lines
     final gridPaint = Paint()
       ..color = const Color(0xFFE9ECEF)
       ..strokeWidth = 1;
@@ -111,16 +108,13 @@ class _ChartPainter extends CustomPainter {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
     }
 
-    // Sample data points (normalized 0-1)
     final points = [0.65, 0.72, 0.58, 0.80, 0.68, 0.75, 0.70];
     
-    // Create gradient for the line
     final gradient = const LinearGradient(
       colors: [Color(0xFF667eea), Color(0xFF764ba2)],
     ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
     paint.shader = gradient;
 
-    // Draw the line
     final path = Path();
     for (int i = 0; i < points.length; i++) {
       final x = size.width * i / (points.length - 1);
@@ -128,7 +122,6 @@ class _ChartPainter extends CustomPainter {
       if (i == 0) {
         path.moveTo(x, y);
       } else {
-        // Smooth curve
         final prevX = size.width * (i - 1) / (points.length - 1);
         final prevY = size.height * (1 - points[i - 1]);
         final controlX = (prevX + x) / 2;

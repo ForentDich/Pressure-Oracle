@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
-import '../i18n/strings.dart';
+import '../i18n/l10n_extension.dart';
 
 typedef VoidCallbackNullable = void Function();
 
@@ -24,9 +24,9 @@ class BottomEntryActions extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               onPressed: onCancel,
-              child: const SizedBox(
+              child: SizedBox(
                 height: 44,
-                child: Center(child: Text(Strings.cancel)),
+                child: Center(child: Text(context.l10n.cancel)),
               ),
             ),
           ),
@@ -39,9 +39,9 @@ class BottomEntryActions extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               onPressed: onSave,
-              child: const SizedBox(
+              child: SizedBox(
                 height: 44,
-                child: Center(child: Text(Strings.save)),
+                child: Center(child: Text(context.l10n.save)),
               ),
             ),
           ),

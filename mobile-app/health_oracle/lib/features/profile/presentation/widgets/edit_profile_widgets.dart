@@ -44,6 +44,128 @@ class EditSection extends StatelessWidget {
   }
 }
 
+/// Текстовое поле для редактирования
+class EditTextField extends StatelessWidget {
+  final String label;
+  final TextEditingController controller;
+  final TextInputType keyboardType;
+
+  const EditTextField({
+    super.key,
+    required this.label,
+    required this.controller,
+    this.keyboardType = TextInputType.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyles.bodyMedium.copyWith(
+              color: AppColors.neutral600,
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: controller,
+            keyboardType: keyboardType,
+            style: TextStyles.bodyMedium.copyWith(
+              color: AppColors.neutral900,
+            ),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.neutral50,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColors.neutral200),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColors.neutral200),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColors.primary, width: 2),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Поле для выбора даты
+class EditDateField extends StatelessWidget {
+  final String label;
+  final String value;
+  final VoidCallback onTap;
+
+  const EditDateField({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyles.bodyMedium.copyWith(
+              color: AppColors.neutral600,
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: onTap,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              decoration: BoxDecoration(
+                color: AppColors.neutral50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.neutral200),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      value,
+                      style: TextStyles.bodyMedium.copyWith(
+                        color: AppColors.neutral900,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.calendar_today_outlined,
+                    size: 18,
+                    color: AppColors.neutral500,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Старый виджет для обратной совместимости
 class EditField extends StatelessWidget {
   final String label;
   final String value;

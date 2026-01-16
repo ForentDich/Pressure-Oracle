@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/theme/text_styles.dart';
+import '../../../../core/i18n/l10n_extension.dart';
 
 enum MetricType {
   pressure,
@@ -18,6 +19,7 @@ class HistoryCard extends StatelessWidget {
   final String? secondaryUnit;
   final String? status;
   final Color? statusColor;
+  final VoidCallback? onDelete;
 
   const HistoryCard({
     super.key,
@@ -29,11 +31,12 @@ class HistoryCard extends StatelessWidget {
     this.secondaryUnit,
     this.status,
     this.statusColor,
+    this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
-    final metricInfo = _getMetricInfo();
+    final metricInfo = _getMetricInfo(context);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -48,28 +51,49 @@ class HistoryCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      clipBehavior: Clip.none,
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: (statusColor ?? metricInfo.color).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+          if (onDelete != null)
+            Positioned(
+              top: -8,
+              right: -8,
+              child: GestureDetector(
+                onTap: onDelete,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: AppColors.error500.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Icon(
+                    Icons.close,
+                    size: 18,
+                    color: AppColors.error500,
+                  ),
+                ),
+              ),
             ),
-            child: Icon(
-              metricInfo.icon,
-              size: 24,
-              color: statusColor ?? metricInfo.color,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: (statusColor ?? metricInfo.color).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  metricInfo.icon,
+                  size: 24,
+                  color: statusColor ?? metricInfo.color,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       metricInfo.name,
@@ -78,20 +102,7 @@ class HistoryCard extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    Text(
-                      _formatTime(date),
-                      style: TextStyles.labelSmall.copyWith(
-                        color: AppColors.neutral500,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
+                    const SizedBox(height: 4),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
@@ -111,15 +122,27 @@ class HistoryCard extends StatelessWidget {
                             color: AppColors.neutral500,
                           ),
                         ),
+                        const Spacer(),
+                        if (secondaryValue != null)
+                          _buildSecondaryValue()
+                        else if (status != null)
+                          _buildStatusChip(),
                       ],
                     ),
-                    if (secondaryValue != null)
-                      _buildSecondaryValue()
-                    else if (status != null)
-                      _buildStatusChip(),
                   ],
                 ),
-              ],
+              ),
+            ],
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Text(
+              _formatTime(date),
+              style: TextStyles.bodyMedium.copyWith(
+                color: AppColors.neutral700,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -144,16 +167,16 @@ class HistoryCard extends StatelessWidget {
     );
   }
 
-  _MetricInfo _getMetricInfo() {
+  _MetricInfo _getMetricInfo(BuildContext context) {
     switch (type) {
       case MetricType.pressure:
-        return _MetricInfo('Давление', Icons.favorite_border, AppColors.primary);
+        return _MetricInfo(context.l10n.metricPressure, Icons.favorite_border, AppColors.primary);
       case MetricType.pulse:
-        return _MetricInfo('Пульс', Icons.monitor_heart_outlined, const Color(0xFFEF4444));
+        return _MetricInfo(context.l10n.metricPulse, Icons.monitor_heart_outlined, const Color(0xFFEF4444));
       case MetricType.weight:
-        return _MetricInfo('Вес', Icons.monitor_weight_outlined, const Color(0xFF3B82F6));
+        return _MetricInfo(context.l10n.metricWeight, Icons.monitor_weight_outlined, const Color(0xFF3B82F6));
       case MetricType.sugar:
-        return _MetricInfo('Сахар', Icons.water_drop_outlined, const Color(0xFFEAB308));
+        return _MetricInfo(context.l10n.metricSugar, Icons.water_drop_outlined, const Color(0xFFEAB308));
     }
   }
 

@@ -1,13 +1,26 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/theme/text_styles.dart';
+import '../../../../core/i18n/l10n_extension.dart';
+import '../../../../data/data.dart';
 import '../pages/edit_profile_page.dart';
 
 class ProfileHeader extends StatelessWidget {
-  const ProfileHeader({super.key});
+  final UserProfile profile;
+  final VoidCallback? onEditComplete;
+
+  const ProfileHeader({
+    super.key,
+    required this.profile,
+    this.onEditComplete,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final displayName = profile.firstName.isEmpty 
+        ? context.l10n.defaultUserName 
+        : profile.firstName;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 48),
       child: Row(
@@ -44,7 +57,7 @@ class ProfileHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Иван Петров',
+                  displayName,
                   style: TextStyles.headlineLarge.copyWith(
                     fontSize: 24,
                     color: Colors.white,
@@ -63,12 +76,15 @@ class ProfileHeader extends StatelessWidget {
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(12),
-                        onTap: () {
-                          Navigator.of(context).push(
+                        onTap: () async {
+                          await Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => const EditProfilePage(),
+                              builder: (_) => EditProfilePage(
+                                profile: profile,
+                              ),
                             ),
                           );
+                          onEditComplete?.call();
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
@@ -79,7 +95,7 @@ class ProfileHeader extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Редактировать',
+                                context.l10n.edit,
                                 style: TextStyles.bodyMedium.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
