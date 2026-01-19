@@ -97,43 +97,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () => Navigator.of(context).pop(),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.arrow_back_ios_new,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          const SizedBox(width: 16),
-                          Text(
-                            context.l10n.editProfile,
-                            style: TextStyles.headlineLarge.copyWith(
-                              color: Colors.white,
-                              fontSize: 24,
-                            ),
-                          ),
-                        ],
-                      ),
-                      TextButton(
-                        onPressed: _save,
-                        child: Text(
-                          context.l10n.save,
-                          style: TextStyles.bodyMedium.copyWith(
+                          child: const Icon(
+                            Icons.arrow_back_ios_new,
                             color: Colors.white,
-                            fontWeight: FontWeight.w600,
+                            size: 20,
                           ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        context.l10n.editProfile,
+                        style: TextStyles.headlineLarge.copyWith(
+                          color: Colors.white,
+                          fontSize: 22,
                         ),
                       ),
                     ],
@@ -229,6 +214,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             ),
                             const SizedBox(height: 32),
                           ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Save button
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _save,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.actionPrimary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        context.l10n.save,
+                        style: TextStyles.bodyMedium.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 17,
                         ),
                       ),
                     ),

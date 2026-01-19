@@ -2,15 +2,14 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../models/health_entry.dart';
 
-/// Сервис для работы с записями здоровья
+
 class EntryService {
   static const String _boxName = 'health_entries';
   static Box<HealthEntry>? _box;
   static const _uuid = Uuid();
 
-  /// Инициализация (вызывать после ProfileService.init())
+
   static Future<void> init() async {
-    // Регистрируем адаптеры
     if (!Hive.isAdapterRegistered(1)) {
       Hive.registerAdapter(EntryTypeAdapter());
     }
@@ -39,7 +38,7 @@ class EntryService {
     return entries.first;
   }
 
-  /// Получить записи за период
+
   static List<HealthEntry> getByDateRange(DateTime start, DateTime end) {
     return _box?.values
             .where((e) => e.createdAt.isAfter(start) && e.createdAt.isBefore(end))
@@ -47,7 +46,7 @@ class EntryService {
         [];
   }
 
-  /// Добавить запись
+
   static Future<HealthEntry> add({
     required EntryType type,
     required double value,

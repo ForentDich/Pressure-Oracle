@@ -6,6 +6,7 @@ class ScheduleItem extends StatelessWidget {
   final String title;
   final String time;
   final String repeat;
+  final String category;
   final IconData icon;
   final Gradient gradient;
   final bool isActive;
@@ -17,6 +18,7 @@ class ScheduleItem extends StatelessWidget {
     required this.title,
     required this.time,
     required this.repeat,
+    required this.category,
     required this.icon,
     required this.gradient,
     required this.isActive,
@@ -102,6 +104,14 @@ class ScheduleItem extends StatelessWidget {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    category,
+                    style: TextStyles.bodyMedium.copyWith(
+                      fontSize: 12,
+                      color: AppColors.neutral400,
+                    ),
                   ),
                 ],
               ),

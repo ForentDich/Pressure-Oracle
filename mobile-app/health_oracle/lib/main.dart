@@ -12,11 +12,15 @@ import 'core/theme/text_styles.dart';
 import 'core/i18n/l10n_extension.dart';
 import 'data/services/profile_service.dart';
 import 'data/services/entry_service.dart';
+import 'data/services/reminder_service.dart';
+import 'data/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ProfileService.init();
   await EntryService.init();
+  await ReminderService.init();
+  await NotificationService.init();
   runApp(const MyApp());
 }
 

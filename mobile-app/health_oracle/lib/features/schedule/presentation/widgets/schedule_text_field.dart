@@ -4,14 +4,16 @@ import '../../../../core/theme/text_styles.dart';
 
 class ScheduleTextField extends StatelessWidget {
   final String label;
-  final String value;
+  final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
+  final String? hintText;
 
   const ScheduleTextField({
     super.key,
     required this.label,
-    required this.value,
+    this.controller,
     this.onChanged,
+    this.hintText,
   });
 
   @override
@@ -27,17 +29,28 @@ class ScheduleTextField extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          decoration: BoxDecoration(
-            color: AppColors.background,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.neutral200),
-          ),
-          width: double.infinity,
-          child: Text(
-            value,
-            style: TextStyles.bodyMedium.copyWith(color: AppColors.neutral900),
+        TextField(
+          controller: controller,
+          onChanged: onChanged,
+          style: TextStyles.bodyMedium.copyWith(color: AppColors.neutral900),
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: TextStyles.bodyMedium.copyWith(color: AppColors.neutral400),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            filled: true,
+            fillColor: AppColors.background,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: AppColors.neutral200),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: AppColors.neutral200),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: AppColors.primary),
+            ),
           ),
         ),
       ],

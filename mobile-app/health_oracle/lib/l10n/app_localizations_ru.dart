@@ -261,10 +261,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get basicData => 'Основные данные';
 
   @override
-  String get notificationTitle => 'Название уведомления';
+  String get notificationTitle => 'Название уведомления (необязательно)';
 
   @override
-  String get description => 'Описание';
+  String get description => 'Описание (необязательно)';
 
   @override
   String get timeAndRepeat => 'Время и повтор';
@@ -346,4 +346,45 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get doctorVisit => 'Визит к врачу';
+
+  @override
+  String get notificationPermissionDenied =>
+      'Разрешение на уведомления не получено. Включите в настройках.';
+
+  @override
+  String get defaultReminderTitlePressure => 'Измерьте давление!';
+
+  @override
+  String get defaultReminderTitlePulse => 'Измерьте пульс!';
+
+  @override
+  String get defaultReminderTitleWeight => 'Время взвеситься!';
+
+  @override
+  String get defaultReminderTitleSugar => 'Измерьте уровень сахара!';
+
+  @override
+  String get defaultReminderTitleOther => 'Напоминание';
+
+  @override
+  String get defaultReminderDescription =>
+      'Регулярные измерения важны для здоровья';
+
+  @override
+  String get notificationCategoryPressure => 'Давление';
+
+  @override
+  String get notificationCategoryPulse => 'Пульс';
+
+  @override
+  String get notificationCategoryWeight => 'Вес';
+
+  @override
+  String get notificationCategorySugar => 'Сахар';
+
+  @override
+  String get notificationCategoryOther => 'Прочее';
+
+  @override
+  String get notificationCategoryLabel => 'Категория';
 }

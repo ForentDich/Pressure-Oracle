@@ -599,13 +599,13 @@ abstract class AppLocalizations {
   /// No description provided for @notificationTitle.
   ///
   /// In ru, this message translates to:
-  /// **'Название уведомления'**
+  /// **'Название уведомления (необязательно)'**
   String get notificationTitle;
 
   /// No description provided for @description.
   ///
   /// In ru, this message translates to:
-  /// **'Описание'**
+  /// **'Описание (необязательно)'**
   String get description;
 
   /// No description provided for @timeAndRepeat.
@@ -769,6 +769,84 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Визит к врачу'**
   String get doctorVisit;
+
+  /// No description provided for @notificationPermissionDenied.
+  ///
+  /// In ru, this message translates to:
+  /// **'Разрешение на уведомления не получено. Включите в настройках.'**
+  String get notificationPermissionDenied;
+
+  /// No description provided for @defaultReminderTitlePressure.
+  ///
+  /// In ru, this message translates to:
+  /// **'Измерьте давление!'**
+  String get defaultReminderTitlePressure;
+
+  /// No description provided for @defaultReminderTitlePulse.
+  ///
+  /// In ru, this message translates to:
+  /// **'Измерьте пульс!'**
+  String get defaultReminderTitlePulse;
+
+  /// No description provided for @defaultReminderTitleWeight.
+  ///
+  /// In ru, this message translates to:
+  /// **'Время взвеситься!'**
+  String get defaultReminderTitleWeight;
+
+  /// No description provided for @defaultReminderTitleSugar.
+  ///
+  /// In ru, this message translates to:
+  /// **'Измерьте уровень сахара!'**
+  String get defaultReminderTitleSugar;
+
+  /// No description provided for @defaultReminderTitleOther.
+  ///
+  /// In ru, this message translates to:
+  /// **'Напоминание'**
+  String get defaultReminderTitleOther;
+
+  /// No description provided for @defaultReminderDescription.
+  ///
+  /// In ru, this message translates to:
+  /// **'Регулярные измерения важны для здоровья'**
+  String get defaultReminderDescription;
+
+  /// No description provided for @notificationCategoryPressure.
+  ///
+  /// In ru, this message translates to:
+  /// **'Давление'**
+  String get notificationCategoryPressure;
+
+  /// No description provided for @notificationCategoryPulse.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пульс'**
+  String get notificationCategoryPulse;
+
+  /// No description provided for @notificationCategoryWeight.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вес'**
+  String get notificationCategoryWeight;
+
+  /// No description provided for @notificationCategorySugar.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сахар'**
+  String get notificationCategorySugar;
+
+  /// No description provided for @notificationCategoryOther.
+  ///
+  /// In ru, this message translates to:
+  /// **'Прочее'**
+  String get notificationCategoryOther;
+
+  /// No description provided for @notificationCategoryLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Категория'**
+  String get notificationCategoryLabel;
 }
 
 class _AppLocalizationsDelegate

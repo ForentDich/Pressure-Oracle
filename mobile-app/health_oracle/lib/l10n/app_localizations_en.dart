@@ -260,10 +260,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get basicData => 'Basic data';
 
   @override
-  String get notificationTitle => 'Notification title';
+  String get notificationTitle => 'Notification title (optional)';
 
   @override
-  String get description => 'Description';
+  String get description => 'Description (optional)';
 
   @override
   String get timeAndRepeat => 'Time and repeat';
@@ -345,4 +345,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get doctorVisit => 'Doctor visit';
+
+  @override
+  String get notificationPermissionDenied =>
+      'Notification permission denied. Please enable in settings.';
+
+  @override
+  String get defaultReminderTitlePressure => 'Measure your pressure!';
+
+  @override
+  String get defaultReminderTitlePulse => 'Check your pulse!';
+
+  @override
+  String get defaultReminderTitleWeight => 'Time to weigh yourself!';
+
+  @override
+  String get defaultReminderTitleSugar => 'Check your sugar level!';
+
+  @override
+  String get defaultReminderTitleOther => 'Reminder';
+
+  @override
+  String get defaultReminderDescription =>
+      'Regular measurements are important for your health';
+
+  @override
+  String get notificationCategoryPressure => 'Pressure';
+
+  @override
+  String get notificationCategoryPulse => 'Pulse';
+
+  @override
+  String get notificationCategoryWeight => 'Weight';
+
+  @override
+  String get notificationCategorySugar => 'Sugar';
+
+  @override
+  String get notificationCategoryOther => 'Other';
+
+  @override
+  String get notificationCategoryLabel => 'Category';
 }

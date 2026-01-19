@@ -102,8 +102,8 @@
   "newReminder": "Новое напоминание",
   "editing": "Редактирование",
   "basicData": "Основные данные",
-  "notificationTitle": "Название уведомления",
-  "description": "Описание",
+  "notificationTitle": "Название уведомления (необязательно)",
+  "description": "Описание (необязательно)",
   "timeAndRepeat": "Время и повтор",
   "time": "Время",
   "repeat": "Повтор",
@@ -133,5 +133,21 @@
   "eveningMeasurement": "Вечернее измерение",
   "weighing": "Взвешивание",
   "recordSugar": "Записать сахар",
-  "doctorVisit": "Визит к врачу"
+  "doctorVisit": "Визит к врачу",
+  
+  "notificationPermissionDenied": "Разрешение на уведомления не получено. Включите в настройках.",
+  
+  "defaultReminderTitlePressure": "Измерьте давление!",
+  "defaultReminderTitlePulse": "Измерьте пульс!",
+  "defaultReminderTitleWeight": "Время взвеситься!",
+  "defaultReminderTitleSugar": "Измерьте уровень сахара!",
+  "defaultReminderTitleOther": "Напоминание",
+  "defaultReminderDescription": "Регулярные измерения важны для здоровья",
+  
+  "notificationCategoryPressure": "Давление",
+  "notificationCategoryPulse": "Пульс",
+  "notificationCategoryWeight": "Вес",
+  "notificationCategorySugar": "Сахар",
+  "notificationCategoryOther": "Прочее",
+  "notificationCategoryLabel": "Категория"
 }

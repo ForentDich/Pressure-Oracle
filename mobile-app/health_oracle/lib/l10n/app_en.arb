@@ -102,8 +102,8 @@
   "newReminder": "New reminder",
   "editing": "Editing",
   "basicData": "Basic data",
-  "notificationTitle": "Notification title",
-  "description": "Description",
+  "notificationTitle": "Notification title (optional)",
+  "description": "Description (optional)",
   "timeAndRepeat": "Time and repeat",
   "time": "Time",
   "repeat": "Repeat",
@@ -133,5 +133,21 @@
   "eveningMeasurement": "Evening measurement",
   "weighing": "Weighing",
   "recordSugar": "Record sugar",
-  "doctorVisit": "Doctor visit"
+  "doctorVisit": "Doctor visit",
+  
+  "notificationPermissionDenied": "Notification permission denied. Please enable in settings.",
+  
+  "defaultReminderTitlePressure": "Measure your pressure!",
+  "defaultReminderTitlePulse": "Check your pulse!",
+  "defaultReminderTitleWeight": "Time to weigh yourself!",
+  "defaultReminderTitleSugar": "Check your sugar level!",
+  "defaultReminderTitleOther": "Reminder",
+  "defaultReminderDescription": "Regular measurements are important for your health",
+  
+  "notificationCategoryPressure": "Pressure",
+  "notificationCategoryPulse": "Pulse",
+  "notificationCategoryWeight": "Weight",
+  "notificationCategorySugar": "Sugar",
+  "notificationCategoryOther": "Other",
+  "notificationCategoryLabel": "Category"
 }
