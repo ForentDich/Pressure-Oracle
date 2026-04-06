@@ -115,10 +115,6 @@ class _AnalysisPressurePageState extends State<AnalysisPressurePage>
           _buildCategoriesCard(context, _hypertensionResult!),
           const SizedBox(height: 20),
           _buildProbabilitiesCard(context, _hypertensionResult!),
-          if (kDebugMode) ...[
-            const SizedBox(height: 16),
-            _buildInputsDebug(context, _hypertensionResult!),
-          ],
         ],
       ),
     );
@@ -583,37 +579,7 @@ class _AnalysisPressurePageState extends State<AnalysisPressurePage>
     );
   }
 
-  Widget _buildInputsDebug(BuildContext context, HypertensionResult r) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceVariant(context),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.border(context)),
-      ),
-      child: DefaultTextStyle(
-        style: TextStyles.bodyMedium.copyWith(
-          color: AppTheme.textSecondary(context),
-          fontSize: 12,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('DEBUG'),
-            const SizedBox(height: 6),
-            Text('mode(UI): $_mode'),
-            Text('label: ${r.label}'),
-            Text('classIndex: ${r.classIndex}'),
-            Text('confidence: ${(r.confidence * 100).toStringAsFixed(1)}%'),
-            Text('cats: ${r.sbpCategory} | ${r.dbpCategory} | ${r.pulseCategory} | ${r.bmiCategory}'),
-            Text('lastRunAt: ${_debugLastRunAt?.toIso8601String() ?? '-'}'),
-            Text('error: ${_debugLastError ?? '-'}'),
-          ],
-        ),
-      ),
-    );
-  }
+
 
   Color _severityColor(int severity) {
     switch (severity) {

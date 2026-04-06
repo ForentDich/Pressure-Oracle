@@ -74,8 +74,8 @@ class HealthCategorizer {
     return weightKg / (heightM * heightM);
   }
 
-  /// Пол: Python: f = 0, m = 1
-  static int encodeSex(bool isMale) => isMale ? 1 : 0;
+  /// Пол: Python (в текущей модели): Male = 0, Female = 1
+  static int encodeSex(bool isMale) => isMale ? 0 : 1;
 
   // ─── Модель 2: feature engineering ──────────────────────────
 

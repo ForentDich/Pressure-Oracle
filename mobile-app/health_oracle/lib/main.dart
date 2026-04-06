@@ -59,7 +59,8 @@ class MyApp extends StatelessWidget {
 class MainNavigator extends StatefulWidget {
   const MainNavigator({super.key});
 
-  static final GlobalKey<_MainNavigatorState> navigatorKey = GlobalKey<_MainNavigatorState>();
+  static final GlobalKey<_MainNavigatorState> navigatorKey =
+      GlobalKey<_MainNavigatorState>();
 
   static void goToHistory() {
     navigatorKey.currentState?.goToHistory();
@@ -116,26 +117,64 @@ class _MainNavigatorState extends State<MainNavigator> {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 24),
-            child: _buildNavItem(Icons.home_outlined, Icons.home, context.l10n.home, 0),
+          Row(
+            children: [
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildNavItem(
+                      Icons.home_outlined,
+                      Icons.home,
+                      context.l10n.home,
+                      0,
+                    ),
+                    _buildNavItem(
+                      Icons.history_outlined,
+                      Icons.history,
+                      context.l10n.history,
+                      1,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 54),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildNavItem(
+                      Icons.calendar_month_outlined,
+                      Icons.calendar_month,
+                      context.l10n.schedule,
+                      2,
+                    ),
+                    _buildNavItem(
+                      Icons.person_outlined,
+                      Icons.person,
+                      context.l10n.profile,
+                      3,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          _buildNavItem(Icons.history_outlined, Icons.history, context.l10n.history, 1),
           _buildCenterButton(),
-          _buildNavItem(Icons.calendar_month_outlined, Icons.calendar_month, context.l10n.schedule, 2),
-          Padding(
-            padding: const EdgeInsets.only(right: 24),
-            child: _buildNavItem(Icons.person_outlined, Icons.person, context.l10n.profile, 3),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem(IconData icon, IconData activeIcon, String label, int index) {
+  Widget _buildNavItem(
+    IconData icon,
+    IconData activeIcon,
+    String label,
+    int index,
+  ) {
     final isSelected = _currentIndex == index;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final selectedColor = isDark ? Colors.white : AppColors.primary;
@@ -185,11 +224,7 @@ class _MainNavigatorState extends State<MainNavigator> {
             ),
           ],
         ),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 24,
-        ),
+        child: const Icon(Icons.add, color: Colors.white, size: 24),
       ),
     );
   }

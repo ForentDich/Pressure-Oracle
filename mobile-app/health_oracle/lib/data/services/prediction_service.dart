@@ -3,6 +3,7 @@ import 'health_categorizer.dart';
 import 'entry_service.dart';
 import 'profile_service.dart';
 import '../models/health_entry.dart';
+import 'hypertension_svc_model.dart';
 
 /// Результат предсказания гипертонии (Модель 1).
 class HypertensionResult {
@@ -67,23 +68,14 @@ class KidneyResult {
 
 /// Сервис предсказаний — загружает модели и делает вывод.
 class PredictionService {
-  static RandomForestModel? _hypertensionModel;
   static RandomForestModel? _kidneyModel;
   static bool _initialized = false;
 
   /// Инициализация: загружает JSON-модели из assets.
   static Future<void> init() async {
     if (_initialized) return;
-    try {
-      _hypertensionModel = await RandomForestModel.load(
-        'assets/models/hypertension_model.json',
-      );
-      print('PredictionService: hypertension model loaded '
-          '(${_hypertensionModel!.nFeatures} features, '
-          '${_hypertensionModel!.classNames.length} classes)');
-    } catch (e) {
-      print('PredictionService: hypertension model not loaded — $e');
-    }
+    // Hypertension model is now compiled natively as SVC
+    // _hypertensionModel = await RandomForestModel.load(...);
 
     try {
       _kidneyModel = await RandomForestModel.load(
@@ -98,7 +90,7 @@ class PredictionService {
     _initialized = true;
   }
 
-  static bool get isHypertensionModelReady => _hypertensionModel != null;
+  static bool get isHypertensionModelReady => true; // Using SVC model natively
   static bool get isKidneyModelReady => _kidneyModel != null;
 
   // ─── Модель 1: гипертония ───────────────────────────────────
@@ -128,7 +120,7 @@ class PredictionService {
   }
 
   static HypertensionResult? predictHypertension({bool isLatest = false}) {
-    if (_hypertensionModel == null) return null;
+    if (!isHypertensionModelReady) return null;
 
     final profile = ProfileService.getProfile();
     if (profile == null) return null;
@@ -165,17 +157,18 @@ class PredictionService {
       final catBMI = HealthCategorizer.categorizeBMI(bmi);
       final sexEncoded = HealthCategorizer.encodeSex(sex);
 
+      // Model uses raw variables instead of labeled categories
       final features = [
         sexEncoded.toDouble(),
-        catSBP.toDouble(),
-        catDBP.toDouble(),
-        catBMI.toDouble(),
-        catPulse.toDouble(),
         age.toDouble(),
+        sbp, // Systolic Blood Pressure(mmHg)
+        dbp, // Diastolic Blood Pressure(mmHg)
+        pulse, // Heart Rate(b/m)
+        bmi, // BMI(kg/m^2)
       ];
 
-      final classIdx = _hypertensionModel!.predict(features);
-      final probs = _hypertensionModel!.predictProbabilities(features);
+      final classIdx = HypertensionSvcModel.predict(features);
+      final probs = HypertensionSvcModel.predictProbabilities(features);
 
       return HypertensionResult(
         classIndex: classIdx,
@@ -227,17 +220,18 @@ class PredictionService {
     final catBMI = HealthCategorizer.categorizeBMI(bmi);
     final sexEncoded = HealthCategorizer.encodeSex(sex);
 
+    // Using raw continuous variables
     final features = [
       sexEncoded.toDouble(),
-      catSBP.toDouble(),
-      catDBP.toDouble(),
-      catBMI.toDouble(),
-      catPulse.toDouble(),
       age.toDouble(),
+      sbp,
+      dbp,
+      pulse,
+      bmi,
     ];
 
-    final classIdx = _hypertensionModel!.predict(features);
-    final probs = _hypertensionModel!.predictProbabilities(features);
+    final classIdx = HypertensionSvcModel.predict(features);
+    final probs = HypertensionSvcModel.predictProbabilities(features);
 
     return HypertensionResult(
       classIndex: classIdx,
@@ -267,21 +261,21 @@ class PredictionService {
     required int age,
     required bool isMale,
   }) {
-    if (_hypertensionModel == null) return null;
+    if (!isHypertensionModelReady) return null;
 
     final bmi = HealthCategorizer.calculateBMI(heightCm, weightKg);
 
     final features = [
       HealthCategorizer.encodeSex(isMale).toDouble(),
-      HealthCategorizer.categorizeSBP(systolic).toDouble(),
-      HealthCategorizer.categorizeDBP(diastolic).toDouble(),
-      HealthCategorizer.categorizeBMI(bmi).toDouble(),
-      HealthCategorizer.categorizePulse(pulse).toDouble(),
       age.toDouble(),
+      systolic,
+      diastolic,
+      pulse,
+      bmi,
     ];
 
-    final classIdx = _hypertensionModel!.predict(features);
-    final probs = _hypertensionModel!.predictProbabilities(features);
+    final classIdx = HypertensionSvcModel.predict(features);
+    final probs = HypertensionSvcModel.predictProbabilities(features);
 
     return HypertensionResult(
       classIndex: classIdx,
