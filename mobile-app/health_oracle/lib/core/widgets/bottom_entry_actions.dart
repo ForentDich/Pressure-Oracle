@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
+import '../theme/app_theme.dart';
 import '../i18n/l10n_extension.dart';
 
 typedef VoidCallbackNullable = void Function();
@@ -19,7 +20,7 @@ class BottomEntryActions extends StatelessWidget {
           Expanded(
             child: OutlinedButton(
               style: OutlinedButton.styleFrom(
-                backgroundColor: AppColors.neutral200,
+                backgroundColor: AppTheme.surfaceVariant(context),
                 foregroundColor: AppColors.actionPrimary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
@@ -32,16 +33,34 @@ class BottomEntryActions extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.actionPrimary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            child: Container(
+              height: 44,
+              decoration: BoxDecoration(
+                gradient: AppColors.purpleGradient,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF8E2DE2).withValues(alpha: 0.3),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              onPressed: onSave,
-              child: SizedBox(
-                height: 44,
-                child: Center(child: Text(context.l10n.save)),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onSave,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Center(
+                    child: Text(
+                      context.l10n.save,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

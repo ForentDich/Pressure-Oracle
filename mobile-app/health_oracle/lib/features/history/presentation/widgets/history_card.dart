@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 import '../../../../core/i18n/l10n_extension.dart';
 
@@ -40,17 +41,7 @@ class HistoryCard extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.neutral900.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      decoration: AppTheme.cardDecoration(context, shadowAlpha: 0.1, blurRadius: 8, shadowOffset: const Offset(0, 4)),
       clipBehavior: Clip.none,
       child: Stack(
         clipBehavior: Clip.none,
@@ -98,8 +89,7 @@ class HistoryCard extends StatelessWidget {
                     Text(
                       metricInfo.name,
                       style: TextStyles.bodyMedium.copyWith(
-                        color: AppColors.neutral600,
-                        fontWeight: FontWeight.w500,
+                        color: AppTheme.textSecondary(context),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -110,8 +100,7 @@ class HistoryCard extends StatelessWidget {
                         Text(
                           value,
                           style: TextStyles.headlineLarge.copyWith(
-                            color: AppColors.neutral900,
-                            fontWeight: FontWeight.bold,
+                            color: AppTheme.textPrimary(context),
                             fontSize: 24,
                           ),
                         ),
@@ -119,12 +108,12 @@ class HistoryCard extends StatelessWidget {
                         Text(
                           unit,
                           style: TextStyles.labelSmall.copyWith(
-                            color: AppColors.neutral500,
+                            color: AppTheme.textHint(context),
                           ),
                         ),
                         const Spacer(),
                         if (secondaryValue != null)
-                          _buildSecondaryValue()
+                          _buildSecondaryValue(context)
                         else if (status != null)
                           _buildStatusChip(),
                       ],
@@ -182,11 +171,11 @@ class HistoryCard extends StatelessWidget {
 
 
 
-  Widget _buildSecondaryValue() {
+  Widget _buildSecondaryValue(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.neutral100,
+        color: AppTheme.surfaceVariant(context),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -195,13 +184,13 @@ class HistoryCard extends StatelessWidget {
           Icon(
             type == MetricType.pressure ? Icons.favorite : Icons.show_chart,
             size: 12,
-            color: AppColors.neutral600,
+            color: AppTheme.textSecondary(context),
           ),
           const SizedBox(width: 4),
           Text(
             '$secondaryValue ${secondaryUnit ?? ''}',
             style: TextStyles.labelSmall.copyWith(
-              color: AppColors.neutral700,
+              color: AppTheme.textSecondary(context),
               fontWeight: FontWeight.w600,
             ),
           ),

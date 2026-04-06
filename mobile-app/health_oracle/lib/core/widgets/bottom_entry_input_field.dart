@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
+import '../theme/app_theme.dart';
 import '../theme/text_styles.dart';
 
 class BottomEntryInputField extends StatelessWidget {
@@ -43,9 +44,9 @@ class BottomEntryInputField extends StatelessWidget {
         Container(
           height: 56, 
           decoration: BoxDecoration(
-            color: AppColors.neutral50,
+            color: AppTheme.surfaceVariant(context),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.buttonBorder),
+            border: Border.all(color: AppTheme.border(context)),
           ),
           child: Row(
             children: [
@@ -65,7 +66,7 @@ class BottomEntryInputField extends StatelessWidget {
                       vertical: 16,
                     ),
                     hintStyle: TextStyles.bodyMedium.copyWith(
-                      color: AppColors.neutral400,
+                      color: AppTheme.textHint(context),
                       fontSize: 18,
                     ),
                   ),
@@ -75,14 +76,14 @@ class BottomEntryInputField extends StatelessWidget {
                 Container(
                   width: 1,
                   height: 24,
-                  color: AppColors.neutral200,
+                  color: AppTheme.divider(context),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     unit!,
                     style: TextStyles.bodyMedium.copyWith(
-                      color: AppColors.neutral600,
+                      color: AppTheme.textSecondary(context),
                       fontWeight: FontWeight.w600,
                     ),
                   ),

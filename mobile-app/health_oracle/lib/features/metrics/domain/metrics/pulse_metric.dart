@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import '../metric_interface.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../data/models/health_entry.dart';
 
 class PulseMetric implements MetricInterface {
   @override
   String get title => 'ПУЛЬС';
+  
+  @override
+  String get description => 'Пульс показывает частоту сердечных сокращений в минуту. Нормальный пульс в покое — 60-100 ударов в минуту.';
   
   @override
   String get unit => 'уд/мин';
@@ -16,11 +20,11 @@ class PulseMetric implements MetricInterface {
   IconData get icon => Icons.favorite_outline;
   
   @override
-  String get currentValue => '72';
+  EntryType get entryType => EntryType.pulse;
   
   @override
-  String get description => 'Частота сердечных сокращений в покое у взрослых: 60-100 ударов в минуту';
+  String formatValue(HealthEntry entry) => entry.value.toInt().toString();
   
   @override
-  String get lastUpdate => 'Сегодня 09:45';
+  String formatValueShort(HealthEntry entry) => formatValue(entry);
 }

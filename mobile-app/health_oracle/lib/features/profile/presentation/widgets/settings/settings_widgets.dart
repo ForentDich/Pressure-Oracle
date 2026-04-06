@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/colors.dart';
+import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/theme/text_styles.dart';
 
 class SettingsHeader extends StatelessWidget {
@@ -67,24 +68,14 @@ class SettingsGroup extends StatelessWidget {
           child: Text(
             title.toUpperCase(),
             style: TextStyles.labelSmall.copyWith(
-              color: AppColors.neutral500,
+              color: AppTheme.textHint(context),
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
             ),
           ),
         ),
         Container(
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.cardShadow.withValues(alpha: 0.05),
-                blurRadius: 12,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
+          decoration: AppTheme.cardDecoration(context, radius: 16),
           child: Column(children: children),
         ),
       ],
@@ -101,7 +92,7 @@ class SettingsDivider extends StatelessWidget {
       height: 1,
       thickness: 1,
       indent: 52,
-      color: AppColors.neutral200,
+      color: AppTheme.divider(context),
     );
   }
 }
@@ -126,18 +117,17 @@ class SettingsSwitch extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          Icon(icon, color: AppColors.neutral600, size: 22),
+          Icon(icon, color: AppTheme.textSecondary(context), size: 22),
           const SizedBox(width: 14),
           Expanded(
             child: Text(
               label,
-              style: TextStyles.bodyMedium.copyWith(color: AppColors.neutral900),
+              style: TextStyles.bodyMedium.copyWith(color: AppTheme.textPrimary(context)),
             ),
           ),
           Switch(
             value: value,
             onChanged: onChanged ?? (_) {},
-            activeColor: AppColors.success500,
           ),
         ],
       ),
@@ -167,21 +157,21 @@ class SettingsNav extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
-            Icon(icon, color: AppColors.neutral600, size: 22),
+            Icon(icon, color: AppTheme.textSecondary(context), size: 22),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
                 label,
-                style: TextStyles.bodyMedium.copyWith(color: AppColors.neutral900),
+                style: TextStyles.bodyMedium.copyWith(color: AppTheme.textPrimary(context)),
               ),
             ),
             if (value.isNotEmpty)
               Text(
                 value,
-                style: TextStyles.bodyMedium.copyWith(color: AppColors.neutral500),
+                style: TextStyles.bodyMedium.copyWith(color: AppTheme.textHint(context)),
               ),
             const SizedBox(width: 6),
-            Icon(Icons.chevron_right, color: AppColors.neutral400, size: 20),
+            Icon(Icons.chevron_right, color: AppTheme.textHint(context), size: 20),
           ],
         ),
       ),

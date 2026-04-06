@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 import '../../domain/metric_factory.dart';
 import 'metric_tab_content.dart';
@@ -28,7 +29,7 @@ class _MetricsContainerPageState extends State<MetricsContainerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppTheme.background(context),
       
       appBar: AppBar(
         leading: IconButton(
@@ -47,7 +48,7 @@ class _MetricsContainerPageState extends State<MetricsContainerPage> {
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: AppColors.neutral200,
+              color: AppTheme.surfaceVariant(context),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -62,9 +63,12 @@ class _MetricsContainerPageState extends State<MetricsContainerPage> {
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.surface : Colors.transparent,
+                        color: isSelected ? AppTheme.surface(context) : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
-                        boxShadow: isSelected ? [
+                        border: isSelected && Theme.of(context).brightness == Brightness.dark
+                            ? Border.all(color: AppTheme.border(context), width: 0.5)
+                            : null,
+                        boxShadow: isSelected && Theme.of(context).brightness == Brightness.light ? [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.1),
                             blurRadius: 4,
@@ -77,7 +81,7 @@ class _MetricsContainerPageState extends State<MetricsContainerPage> {
                         textAlign: TextAlign.center,
                         style: TextStyles.bodyMedium.copyWith(
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                          color: isSelected ? AppColors.neutral900 : AppColors.neutral600,
+                          color: isSelected ? AppTheme.textPrimary(context) : AppTheme.textSecondary(context),
                         ),
                       ),
                     ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 import '../../../../core/i18n/l10n_extension.dart';
 import '../../../../data/data.dart';
@@ -230,110 +231,163 @@ class _ScheduleEditPageState extends State<ScheduleEditPage> {
     final timeString = '${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: false,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.neutral900),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          widget.isNew ? context.l10n.newReminder : context.l10n.editing,
-          style: TextStyles.titleMedium.copyWith(color: AppColors.neutral900),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ScheduleFormSection(
-              title: context.l10n.notificationType,
-              child: ScheduleSelector(
-                icon: Icons.category_outlined,
-                label: context.l10n.notificationType,
-                value: _getCategoryText(context, _selectedCategory),
-                onTap: _selectCategory,
-              ),
+      backgroundColor: AppTheme.background(context),
+      body: Stack(
+        children: [
+          // Gradient header background
+          Container(
+            height: MediaQuery.of(context).size.height * 0.25,
+            decoration: const BoxDecoration(
+              gradient: AppColors.purpleGradient,
             ),
-            const SizedBox(height: 16),
-            ScheduleFormSection(
-              title: context.l10n.timeAndRepeat,
-              child: Column(
-                children: [
-                  ScheduleSelector(
-                    icon: Icons.access_time,
-                    label: context.l10n.time,
-                    value: timeString,
-                    onTap: _selectTime,
-                  ),
-                  const SizedBox(height: 12),
-                  ScheduleSelector(
-                    icon: Icons.repeat,
-                    label: context.l10n.repeat,
-                    value: _getRepeatText(context, _selectedRepeat),
-                    onTap: _selectRepeat,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            ScheduleFormSection(
-              title: context.l10n.basicData,
-              child: Column(
-                children: [
-                  ScheduleTextField(
-                    label: context.l10n.notificationTitle,
-                    controller: _titleController,
-                    hintText: _getDefaultTitle(context, _selectedCategory),
-                  ),
-                  const SizedBox(height: 12),
-                  ScheduleTextField(
-                    label: context.l10n.description,
-                    controller: _descriptionController,
-                    hintText: context.l10n.defaultReminderDescription,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _save,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 20, 24),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        widget.isNew ? context.l10n.newReminder : context.l10n.editing,
+                        style: TextStyles.headlineLarge.copyWith(
+                          color: Colors.white,
+                          fontSize: 24,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Text(context.l10n.save),
-              ),
-            ),
-            if (!widget.isNew) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: _delete,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.error500,
-                    side: const BorderSide(color: AppColors.error500),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                // Content
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: AppTheme.surface(context),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(30),
+                      ),
+                    ),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ScheduleFormSection(
+                            title: context.l10n.notificationType,
+                            child: ScheduleSelector(
+                              icon: Icons.category_outlined,
+                              label: context.l10n.notificationType,
+                              value: _getCategoryText(context, _selectedCategory),
+                              onTap: _selectCategory,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          ScheduleFormSection(
+                            title: context.l10n.timeAndRepeat,
+                            child: Column(
+                              children: [
+                                ScheduleSelector(
+                                  icon: Icons.access_time,
+                                  label: context.l10n.time,
+                                  value: timeString,
+                                  onTap: _selectTime,
+                                ),
+                                const SizedBox(height: 12),
+                                ScheduleSelector(
+                                  icon: Icons.repeat,
+                                  label: context.l10n.repeat,
+                                  value: _getRepeatText(context, _selectedRepeat),
+                                  onTap: _selectRepeat,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          ScheduleFormSection(
+                            title: context.l10n.basicData,
+                            child: Column(
+                              children: [
+                                ScheduleTextField(
+                                  label: context.l10n.notificationTitle,
+                                  controller: _titleController,
+                                  hintText: _getDefaultTitle(context, _selectedCategory),
+                                ),
+                                const SizedBox(height: 12),
+                                ScheduleTextField(
+                                  label: context.l10n.description,
+                                  controller: _descriptionController,
+                                  hintText: context.l10n.defaultReminderDescription,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: AppColors.purpleGradient,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF8E2DE2).withValues(alpha: 0.3),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                            child: ElevatedButton(
+                              onPressed: _save,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: Center(
+                                  child: Text(context.l10n.save),
+                                ),
+                              ),
+                            ),
+                          ),
+                          if (!widget.isNew) ...[
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton(
+                                onPressed: _delete,
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppColors.error500,
+                                  side: const BorderSide(color: AppColors.error500),
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: Text(context.l10n.delete),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
-                  child: Text(context.l10n.delete),
                 ),
-              ),
-            ],
-          ],
-        ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

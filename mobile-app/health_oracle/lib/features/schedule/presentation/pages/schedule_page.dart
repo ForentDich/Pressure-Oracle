@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/i18n/l10n_extension.dart';
 import '../../../../data/data.dart';
 import '../widgets/widgets.dart';
@@ -111,14 +112,14 @@ class _SchedulePageState extends State<SchedulePage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Gradient Background
+          // Gradient Background для верхней панели
           Container(
-            height: MediaQuery.of(context).size.height * 0.28,
+            height: MediaQuery.of(context).size.height * 0.35, // измените высоту, если у вас она другая
             decoration: const BoxDecoration(
-              gradient: AppColors.primaryGradient,
+              gradient: AppColors.purpleGradient,
             ),
           ),
-          // Content
+          
           SafeArea(
             child: Column(
               children: [
@@ -137,8 +138,8 @@ class _SchedulePageState extends State<SchedulePage> {
                 Expanded(
                   child: Container(
                     width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: AppColors.background,
+                    decoration: BoxDecoration(
+                      color: AppTheme.background(context),
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(30),
                       ),
@@ -161,7 +162,7 @@ class _SchedulePageState extends State<SchedulePage> {
                                       label: context.l10n.scheduleActiveCount,
                                       value: '${ReminderService.activeCount}',
                                       icon: Icons.notifications_active_outlined,
-                                      gradient: AppColors.primaryGradient,
+                                      gradient: AppColors.greenGradient,
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -170,7 +171,7 @@ class _SchedulePageState extends State<SchedulePage> {
                                       label: context.l10n.scheduleTotal,
                                       value: '${ReminderService.totalCount}',
                                       icon: Icons.schedule_outlined,
-                                      gradient: AppColors.pressureGradient,
+                                      gradient: AppColors.purpleGradient,
                                     ),
                                   ),
                                 ],
@@ -248,13 +249,13 @@ class _SchedulePageState extends State<SchedulePage> {
                                       Icon(
                                         Icons.notifications_none_outlined,
                                         size: 64,
-                                        color: AppColors.neutral400,
+                                        color: AppTheme.textHint(context),
                                       ),
                                       const SizedBox(height: 16),
                                       Text(
                                         context.l10n.scheduleManageReminders,
                                         style: TextStyle(
-                                          color: AppColors.neutral500,
+                                          color: AppTheme.textHint(context),
                                           fontSize: 16,
                                         ),
                                         textAlign: TextAlign.center,

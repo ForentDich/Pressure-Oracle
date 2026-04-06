@@ -4,6 +4,7 @@ import '../widgets/metric_chart.dart';
 import '../widgets/metric_history.dart';
 import '../widgets/metric_info_card.dart';
 import '../widgets/metric_stats.dart';
+import '../../../../main.dart';
 
 class MetricTabContent extends StatelessWidget {
   final MetricType metricType;
@@ -26,7 +27,14 @@ class MetricTabContent extends StatelessWidget {
           const SizedBox(height: 16),
           MetricChart(metric: metric),
           const SizedBox(height: 16),
-          MetricHistory(metric: metric),
+          MetricHistory(
+            metric: metric,
+            onViewAll: () {
+              // Закрываем страницу метрик и переходим на историю
+              Navigator.of(context).pop();
+              MainNavigator.goToHistory();
+            },
+          ),
           const SizedBox(height: 16),
           MetricInfoCard(metric: metric),
           const SizedBox(height: 24),

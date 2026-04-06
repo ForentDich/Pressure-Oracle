@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 import '../../../../core/i18n/l10n_extension.dart';
 import '../../../../data/data.dart';
@@ -98,20 +99,20 @@ class _HistoryListPanelState extends State<HistoryListPanel> {
                   Icon(
                     Icons.history,
                     size: 64,
-                    color: AppColors.neutral400,
+                    color: AppTheme.textHint(context),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     context.l10n.historyNoRecords,
                     style: TextStyles.titleMedium.copyWith(
-                      color: AppColors.neutral500,
+                      color: AppTheme.textHint(context),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     context.l10n.historyAddFirst,
                     style: TextStyles.bodyMedium.copyWith(
-                      color: AppColors.neutral400,
+                      color: AppTheme.textHint(context),
                     ),
                   ),
                 ],
@@ -171,7 +172,7 @@ class _HistoryListPanelState extends State<HistoryListPanel> {
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(
               context.l10n.cancel,
-              style: TextStyle(color: AppColors.neutral600),
+              style: TextStyle(color: AppTheme.textSecondary(context)),
             ),
           ),
           TextButton(

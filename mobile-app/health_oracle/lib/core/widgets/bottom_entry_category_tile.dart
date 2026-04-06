@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/colors.dart';
+import '../theme/app_theme.dart';
 import '../theme/text_styles.dart';
 
 class BottomEntryCategoryTile extends StatelessWidget {
@@ -27,15 +27,15 @@ class BottomEntryCategoryTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
             gradient: selected && gradient != null ? gradient : null,
-            color: selected ? null : AppColors.neutral100,
+            color: selected ? null : AppTheme.surfaceVariant(context),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.buttonBorder),
+            border: Border.all(color: AppTheme.border(context)),
           ),
           child: Center(
             child: Text(
               title,
               style: TextStyles.labelXSmall.copyWith(
-                color: selected ? Colors.white : AppColors.neutral600,
+                color: selected ? Colors.white : AppTheme.textSecondary(context),
               ),
             ),
           ),

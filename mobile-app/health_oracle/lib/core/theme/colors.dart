@@ -76,4 +76,14 @@ class AppColors {
     colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
   );
 
+  static const LinearGradient greenGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF4CD964),
+      Color(0xFF22C55E),
+      Color(0xFF16A34A),
+    ],
+  );
+
 }

@@ -4,8 +4,8 @@ import '../../../../data/data.dart';
 import '../../../../main.dart';
 import '../widgets/name_page.dart';
 import '../widgets/birth_date_page.dart';
+import '../widgets/sex_page.dart';
 import '../widgets/height_page.dart';
-import '../widgets/weight_page.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -18,10 +18,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final _pageController = PageController();
   final _nameController = TextEditingController();
   final _heightController = TextEditingController();
-  final _weightController = TextEditingController();
   
   int _currentPage = 0;
   DateTime? _birthDate;
+  bool? _sex;
   bool _isLoading = false;
 
   static const _primaryColor = Color(0xFF667eea);
@@ -32,7 +32,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
     _pageController.dispose();
     _nameController.dispose();
     _heightController.dispose();
-    _weightController.dispose();
     super.dispose();
   }
 
@@ -63,9 +62,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
       case 1:
         return _birthDate != null;
       case 2:
-        return _heightController.text.isNotEmpty;
+        return _sex != null;
       case 3:
-        return _weightController.text.isNotEmpty;
+        return _heightController.text.isNotEmpty;
       default:
         return true;
     }
@@ -80,7 +79,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
       firstName: _nameController.text.trim(),
       birthDate: _birthDate,
       height: double.tryParse(_heightController.text),
-      weight: double.tryParse(_weightController.text),
+      sex: _sex,
     );
     
     await ProfileService.saveProfile(profile);
@@ -156,12 +155,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       selectedDate: _birthDate,
                       onDateSelected: (date) => setState(() => _birthDate = date),
                     ),
+                    SexPage(
+                      selectedSex: _sex,
+                      onSexSelected: (sex) => setState(() => _sex = sex),
+                    ),
                     HeightPage(
                       controller: _heightController,
-                      onChanged: () => setState(() {}),
-                    ),
-                    WeightPage(
-                      controller: _weightController,
                       onChanged: () => setState(() {}),
                     ),
                   ],

@@ -158,6 +158,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyYourMeasurements => 'Your measurements';
 
   @override
+  String get allRecords => 'All records';
+
+  @override
   String get onboardingWelcome => 'Welcome!';
 
   @override
@@ -213,6 +216,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get week => 'Week';
+
+  @override
+  String get month => 'Month';
+
+  @override
+  String get year => 'Year';
+
+  @override
+  String get noDataForPeriod => 'No data for this period';
 
   @override
   String get weekdayMon => 'Mon';
@@ -317,6 +329,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeLight => 'Light';
 
   @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
   String get fontSize => 'Font size';
 
   @override
@@ -324,6 +342,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get other => 'Other';
+
+  @override
+  String get aboutApp => 'About app';
 
   @override
   String get typeStandard => 'Standard';
@@ -386,4 +407,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationCategoryLabel => 'Category';
+
+  @override
+  String get sex => 'Sex';
+
+  @override
+  String get sexMale => 'Male';
+
+  @override
+  String get sexFemale => 'Female';
+
+  @override
+  String get onboardingSexTitle => 'Your sex';
+
+  @override
+  String get onboardingSexSubtitle => 'Needed for accurate health analysis';
+
+  @override
+  String get analysis => 'Analysis';
+
+  @override
+  String get analysisTitle => 'Health Analysis';
+
+  @override
+  String get analysisSubtitle => 'ML model results';
+
+  @override
+  String get analysisBased => 'Based on your data';
+
+  @override
+  String get analysisNoData => 'Insufficient data for analysis';
+
+  @override
+  String get analysisNoDataHint => 'Add pressure and pulse measurements';
+
+  @override
+  String get analysisHypertension => 'Hypertension risk';
+
+  @override
+  String get analysisKidney => 'Kidney disease risk';
+
+  @override
+  String get analysisConfidence => 'Model confidence';
+
+  @override
+  String get analysisSBP => 'Systolic BP';
+
+  @override
+  String get analysisDBP => 'Diastolic BP';
+
+  @override
+  String get analysisPulse => 'Pulse';
+
+  @override
+  String get analysisBMI => 'BMI';
+
+  @override
+  String get analysisNormal => 'Normal';
+
+  @override
+  String get analysisPrehypertension => 'Prehypertension';
+
+  @override
+  String get analysisStage1 => 'Stage 1 hypertension';
+
+  @override
+  String get analysisStage2 => 'Stage 2 hypertension';
+
+  @override
+  String get analysisLowRisk => 'Low risk';
+
+  @override
+  String get analysisHighRisk => 'High risk';
+
+  @override
+  String get analysisModelNotLoaded => 'Model not loaded';
+
+  @override
+  String get analysisCategories => 'Indicator categories';
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 
 class ScheduleSelector extends StatelessWidget {
@@ -27,29 +27,29 @@ class ScheduleSelector extends StatelessWidget {
             label,
             style: TextStyles.bodyMedium.copyWith(
               fontSize: 14,
-              color: AppColors.neutral600,
+              color: AppTheme.textSecondary(context),
             ),
           ),
           const SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: AppTheme.surfaceVariant(context),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.neutral200),
+              border: Border.all(color: AppTheme.border(context)),
             ),
             width: double.infinity,
             child: Row(
               children: [
-                Icon(icon, size: 20, color: AppColors.neutral600),
+                Icon(icon, size: 20, color: AppTheme.textSecondary(context)),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     value,
-                    style: TextStyles.bodyMedium.copyWith(color: AppColors.neutral900),
+                    style: TextStyles.bodyMedium.copyWith(color: AppTheme.textPrimary(context)),
                   ),
                 ),
-                Icon(Icons.chevron_right, color: AppColors.neutral400),
+                Icon(Icons.chevron_right, color: AppTheme.textHint(context)),
               ],
             ),
           ),

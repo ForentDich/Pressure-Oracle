@@ -20,7 +20,7 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       firstName: fields[0] as String,
       birthDate: fields[2] as DateTime?,
       height: fields[3] as double?,
-      weight: fields[4] as double?,
+      sex: fields[4] is bool ? fields[4] as bool : null,
     );
   }
 
@@ -35,7 +35,7 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       ..writeByte(3)
       ..write(obj.height)
       ..writeByte(4)
-      ..write(obj.weight);
+      ..write(obj.sex);
   }
 
   @override

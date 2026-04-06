@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 import '../../../../core/i18n/l10n_extension.dart';
 import '../../../../data/data.dart';
@@ -31,9 +31,9 @@ class ProfileHeader extends StatelessWidget {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppTheme.surface(context),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4),
+              border: Border.all(color: AppTheme.surface(context), width: 4),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.15),
@@ -46,7 +46,7 @@ class ProfileHeader extends StatelessWidget {
               child: Icon(
                 Icons.person_rounded,
                 size: 56,
-                color: AppColors.neutral400,
+                color: AppTheme.textHint(context),
               ),
             ),
           ),

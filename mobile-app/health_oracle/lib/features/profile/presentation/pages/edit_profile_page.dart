@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 import '../../../../core/i18n/l10n_extension.dart';
 import '../../../../data/data.dart';
@@ -20,8 +21,8 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _firstNameController;
   late TextEditingController _heightController;
-  late TextEditingController _weightController;
   DateTime? _birthDate;
+  bool? _sex;
 
   @override
   void initState() {
@@ -30,17 +31,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _heightController = TextEditingController(
       text: widget.profile.height?.toStringAsFixed(0) ?? '',
     );
-    _weightController = TextEditingController(
-      text: widget.profile.weight?.toStringAsFixed(1) ?? '',
-    );
     _birthDate = widget.profile.birthDate;
+    _sex = widget.profile.sex;
   }
 
   @override
   void dispose() {
     _firstNameController.dispose();
     _heightController.dispose();
-    _weightController.dispose();
     super.dispose();
   }
 
@@ -69,7 +67,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       firstName: _firstNameController.text.trim(),
       birthDate: _birthDate,
       height: double.tryParse(_heightController.text),
-      weight: double.tryParse(_weightController.text),
+      sex: _sex,
     );
     
     await ProfileService.saveProfile(newProfile);
@@ -128,8 +126,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 Expanded(
                   child: Container(
                     width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: AppTheme.background(context),
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(30),
                       ),
@@ -151,13 +149,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     width: 100,
                                     height: 100,
                                     decoration: BoxDecoration(
-                                      color: AppColors.neutral200,
+                                      color: AppTheme.surfaceVariant(context),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
                                       Icons.person_rounded,
                                       size: 52,
-                                      color: AppColors.neutral500,
+                                      color: AppTheme.textHint(context),
                                     ),
                                   ),
                                   Positioned(
@@ -166,9 +164,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     child: Container(
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        color: AppColors.actionPrimary,
+                                        color:  Color(0xFF8E2DE2),
                                         shape: BoxShape.circle,
-                                        border: Border.all(color: Colors.white, width: 3),
+                                        border: Border.all(color: AppTheme.surface(context), width: 3),
                                       ),
                                       child: const Icon(
                                         Icons.camera_alt,
@@ -194,6 +192,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   value: _formatDate(context, _birthDate),
                                   onTap: _selectDate,
                                 ),
+                                EditSexField(
+                                  label: context.l10n.sex,
+                                  maleLabel: context.l10n.sexMale,
+                                  femaleLabel: context.l10n.sexFemale,
+                                  value: _sex,
+                                  onChanged: (v) => setState(() => _sex = v),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 24),
@@ -204,11 +209,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   label: '${context.l10n.height} (${context.l10n.unitCm})',
                                   controller: _heightController,
                                   keyboardType: TextInputType.number,
-                                ),
-                                EditTextField(
-                                  label: '${context.l10n.weight} (${context.l10n.unitKg})',
-                                  controller: _weightController,
-                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                 ),
                               ],
                             ),
@@ -225,22 +225,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   child: SizedBox(
                     width: double.infinity,
                     height: 56,
-                    child: ElevatedButton(
-                      onPressed: _save,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.actionPrimary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: AppColors.purpleGradient,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF8E2DE2).withValues(alpha: 0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
                       ),
-                      child: Text(
-                        context.l10n.save,
-                        style: TextStyles.bodyMedium.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 17,
+                      child: ElevatedButton(
+                        onPressed: _save,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          context.l10n.save,
+                          style: TextStyles.bodyMedium.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 17,
+                          ),
                         ),
                       ),
                     ),

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import '../metric_interface.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../data/models/health_entry.dart';
 
 class WeightMetric implements MetricInterface {
   @override
   String get title => 'ВЕС';
+  
+  @override
+  String get description => 'Регулярное отслеживание веса помогает контролировать здоровье и вовремя замечать изменения.';
   
   @override
   String get unit => 'кг';
@@ -16,11 +20,11 @@ class WeightMetric implements MetricInterface {
   IconData get icon => Icons.monitor_weight_outlined;
   
   @override
-  String get currentValue => '75.2';
+  EntryType get entryType => EntryType.weight;
   
   @override
-  String get description => 'Контроль веса помогает следить за общим состоянием здоровья и эффективностью диеты/тренировок';
+  String formatValue(HealthEntry entry) => entry.value.toStringAsFixed(1);
   
   @override
-  String get lastUpdate => '3 дня назад';
+  String formatValueShort(HealthEntry entry) => formatValue(entry);
 }

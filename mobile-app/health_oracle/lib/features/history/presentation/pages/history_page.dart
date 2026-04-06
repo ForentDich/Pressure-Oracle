@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 import '../widgets/history_list_panel.dart';
 import 'export_page.dart';
@@ -97,9 +98,9 @@ class HistoryPage extends StatelessWidget {
                 Expanded(
                   child: Container(
                     width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.vertical(
+                    decoration: BoxDecoration(
+                      color: AppTheme.background(context),
+                      borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(30),
                       ),
                     ),

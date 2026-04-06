@@ -46,6 +46,17 @@ class EntryService {
         [];
   }
 
+  static List<HealthEntry> getByTypeAndDateRange(EntryType type, DateTime start, DateTime end) {
+    final entries = _box?.values
+            .where((e) => 
+                e.type == type && 
+                (e.createdAt.isAfter(start) || e.createdAt.isAtSameMomentAs(start)) && 
+                (e.createdAt.isBefore(end) || e.createdAt.isAtSameMomentAs(end)))
+            .toList() ?? [];
+    entries.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    return entries;
+  }
+
 
   static Future<HealthEntry> add({
     required EntryType type,

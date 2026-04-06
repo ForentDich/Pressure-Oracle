@@ -1,6 +1,7 @@
 // bottom_entry_menu.dart
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
+import '../theme/app_theme.dart';
 import '../theme/text_styles.dart';
 import '../i18n/l10n_extension.dart';
 import 'bottom_entry_category_tile.dart';
@@ -167,7 +168,7 @@ class _BottomEntryMenuState extends State<BottomEntryMenu> {
               height: 4,
               margin: const EdgeInsets.only(bottom: 6),
               decoration: BoxDecoration(
-                color: AppColors.neutral200,
+                color: AppTheme.divider(context),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),

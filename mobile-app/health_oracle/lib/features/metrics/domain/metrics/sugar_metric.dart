@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import '../metric_interface.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../data/models/health_entry.dart';
 
 class SugarMetric implements MetricInterface {
   @override
   String get title => 'САХАР';
+  
+  @override
+  String get description => 'Уровень глюкозы в крови. Нормальный показатель натощак — 3.9-5.5 ммоль/л.';
   
   @override
   String get unit => 'ммоль/л';
@@ -16,11 +20,11 @@ class SugarMetric implements MetricInterface {
   IconData get icon => Icons.bloodtype_outlined;
   
   @override
-  String get currentValue => '5.2';
+  EntryType get entryType => EntryType.sugar;
   
   @override
-  String get description => 'Уровень глюкозы в крови показывает эффективность углеводного обмена. Норма натощак: 3.3-5.5 ммоль/л';
+  String formatValue(HealthEntry entry) => entry.value.toStringAsFixed(1);
   
   @override
-  String get lastUpdate => 'Вчера 08:15';
+  String formatValueShort(HealthEntry entry) => formatValue(entry);
 }

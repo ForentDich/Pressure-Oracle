@@ -392,6 +392,12 @@ abstract class AppLocalizations {
   /// **'Ваши измерения'**
   String get historyYourMeasurements;
 
+  /// No description provided for @allRecords.
+  ///
+  /// In ru, this message translates to:
+  /// **'Все записи'**
+  String get allRecords;
+
   /// No description provided for @onboardingWelcome.
   ///
   /// In ru, this message translates to:
@@ -505,6 +511,24 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Неделя'**
   String get week;
+
+  /// No description provided for @month.
+  ///
+  /// In ru, this message translates to:
+  /// **'Месяц'**
+  String get month;
+
+  /// No description provided for @year.
+  ///
+  /// In ru, this message translates to:
+  /// **'Год'**
+  String get year;
+
+  /// No description provided for @noDataForPeriod.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет данных за этот период'**
+  String get noDataForPeriod;
 
   /// No description provided for @weekdayMon.
   ///
@@ -710,6 +734,18 @@ abstract class AppLocalizations {
   /// **'Светлая'**
   String get themeLight;
 
+  /// No description provided for @themeDark.
+  ///
+  /// In ru, this message translates to:
+  /// **'Тёмная'**
+  String get themeDark;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In ru, this message translates to:
+  /// **'Системная'**
+  String get themeSystem;
+
   /// No description provided for @fontSize.
   ///
   /// In ru, this message translates to:
@@ -727,6 +763,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Прочее'**
   String get other;
+
+  /// No description provided for @aboutApp.
+  ///
+  /// In ru, this message translates to:
+  /// **'О приложении'**
+  String get aboutApp;
 
   /// No description provided for @typeStandard.
   ///
@@ -847,6 +889,162 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Категория'**
   String get notificationCategoryLabel;
+
+  /// No description provided for @sex.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пол'**
+  String get sex;
+
+  /// No description provided for @sexMale.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мужской'**
+  String get sexMale;
+
+  /// No description provided for @sexFemale.
+  ///
+  /// In ru, this message translates to:
+  /// **'Женский'**
+  String get sexFemale;
+
+  /// No description provided for @onboardingSexTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ваш пол'**
+  String get onboardingSexTitle;
+
+  /// No description provided for @onboardingSexSubtitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Необходимо для точного анализа здоровья'**
+  String get onboardingSexSubtitle;
+
+  /// No description provided for @analysis.
+  ///
+  /// In ru, this message translates to:
+  /// **'Анализ'**
+  String get analysis;
+
+  /// No description provided for @analysisTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Анализ здоровья'**
+  String get analysisTitle;
+
+  /// No description provided for @analysisSubtitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Результаты ML-моделей'**
+  String get analysisSubtitle;
+
+  /// No description provided for @analysisBased.
+  ///
+  /// In ru, this message translates to:
+  /// **'На основе ваших данных'**
+  String get analysisBased;
+
+  /// No description provided for @analysisNoData.
+  ///
+  /// In ru, this message translates to:
+  /// **'Недостаточно данных для анализа'**
+  String get analysisNoData;
+
+  /// No description provided for @analysisNoDataHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавьте измерения давления и пульса'**
+  String get analysisNoDataHint;
+
+  /// No description provided for @analysisHypertension.
+  ///
+  /// In ru, this message translates to:
+  /// **'Риск гипертонии'**
+  String get analysisHypertension;
+
+  /// No description provided for @analysisKidney.
+  ///
+  /// In ru, this message translates to:
+  /// **'Риск болезней почек'**
+  String get analysisKidney;
+
+  /// No description provided for @analysisConfidence.
+  ///
+  /// In ru, this message translates to:
+  /// **'Уверенность модели'**
+  String get analysisConfidence;
+
+  /// No description provided for @analysisSBP.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сист. давление'**
+  String get analysisSBP;
+
+  /// No description provided for @analysisDBP.
+  ///
+  /// In ru, this message translates to:
+  /// **'Диаст. давление'**
+  String get analysisDBP;
+
+  /// No description provided for @analysisPulse.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пульс'**
+  String get analysisPulse;
+
+  /// No description provided for @analysisBMI.
+  ///
+  /// In ru, this message translates to:
+  /// **'ИМТ'**
+  String get analysisBMI;
+
+  /// No description provided for @analysisNormal.
+  ///
+  /// In ru, this message translates to:
+  /// **'Норма'**
+  String get analysisNormal;
+
+  /// No description provided for @analysisPrehypertension.
+  ///
+  /// In ru, this message translates to:
+  /// **'Предгипертензия'**
+  String get analysisPrehypertension;
+
+  /// No description provided for @analysisStage1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Гипертония 1 ст.'**
+  String get analysisStage1;
+
+  /// No description provided for @analysisStage2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Гипертония 2 ст.'**
+  String get analysisStage2;
+
+  /// No description provided for @analysisLowRisk.
+  ///
+  /// In ru, this message translates to:
+  /// **'Низкий риск'**
+  String get analysisLowRisk;
+
+  /// No description provided for @analysisHighRisk.
+  ///
+  /// In ru, this message translates to:
+  /// **'Повышенный риск'**
+  String get analysisHighRisk;
+
+  /// No description provided for @analysisModelNotLoaded.
+  ///
+  /// In ru, this message translates to:
+  /// **'Модель не загружена'**
+  String get analysisModelNotLoaded;
+
+  /// No description provided for @analysisCategories.
+  ///
+  /// In ru, this message translates to:
+  /// **'Категории показателей'**
+  String get analysisCategories;
 }
 
 class _AppLocalizationsDelegate

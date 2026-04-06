@@ -1,40 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../domain/metric_interface.dart';
 import '../../../../core/theme/text_styles.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/i18n/l10n_extension.dart';
+import '../../../../data/services/entry_service.dart';
+import '../../../../data/models/health_entry.dart';
 
 class MetricHistory extends StatelessWidget {
   final MetricInterface metric;
+  final VoidCallback? onViewAll;
 
   const MetricHistory({
     super.key,
     required this.metric,
+    this.onViewAll,
   });
 
-  // Моковые данные для истории веса
-  static const List<Map<String, dynamic>> _mockHistoryData = [
-    {'date': '29 нояб', 'time': '08:15', 'value': '72.5', 'unit': 'кг', 'change': -0.3},
-    {'date': '28 нояб', 'time': '08:20', 'value': '72.8', 'unit': 'кг', 'change': 0.1},
-    {'date': '27 нояб', 'time': '07:45', 'value': '72.7', 'unit': 'кг', 'change': -0.2},
-    {'date': '26 нояб', 'time': '08:30', 'value': '72.9', 'unit': 'кг', 'change': 0.0},
-    {'date': '25 нояб', 'time': '08:10', 'value': '72.9', 'unit': 'кг', 'change': -0.4},
-  ];
+  List<HealthEntry> _getRecentEntries() {
+    final entries = EntryService.getByType(metric.entryType);
+    entries.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return entries.take(3).toList(); // Только 3 последних
+  }
+
+  int _getTotalCount() {
+    return EntryService.getByType(metric.entryType).length;
+  }
+
+  double _getChange(List<HealthEntry> entries, int index) {
+    if (index >= entries.length - 1) return 0;
+    final current = _getMainValue(entries[index]);
+    final previous = _getMainValue(entries[index + 1]);
+    return current - previous;
+  }
+
+  double _getMainValue(HealthEntry entry) {
+    return entry.value;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final entries = _getRecentEntries();
+    final totalCount = _getTotalCount();
+    
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.cardShadow,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppTheme.cardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -42,30 +54,57 @@ class MetricHistory extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'История измерений',
+                context.l10n.historyYourMeasurements,
                 style: TextStyles.titleMedium.copyWith(
-                  color: AppColors.neutral800,
+                  color: AppTheme.textPrimary(context),
                 ),
               ),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  'Все записи',
-                  style: TextStyles.labelSmall.copyWith(
-                    color: AppColors.primary,
+              if (totalCount > 3 && onViewAll != null)
+                TextButton(
+                  onPressed: onViewAll,
+                  child: Text(
+                    context.l10n.allRecords,
+                    style: TextStyles.labelSmall.copyWith(
+                      color: AppColors.primary,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
           const SizedBox(height: 8),
-          ..._mockHistoryData.map((item) => _HistoryItem(
-            date: item['date'] as String,
-            time: item['time'] as String,
-            value: item['value'] as String,
-            unit: item['unit'] as String,
-            change: item['change'] as double,
-          )),
+          if (entries.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.history,
+                      size: 48,
+                      color: AppTheme.textHint(context),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      context.l10n.historyNoRecords,
+                      style: TextStyles.bodyMedium.copyWith(
+                        color: AppTheme.textHint(context),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            ...entries.asMap().entries.map((e) {
+              final index = e.key;
+              final entry = e.value;
+              final change = _getChange(entries, index);
+              return _HistoryItem(
+                entry: entry,
+                metric: metric,
+                change: change,
+              );
+            }),
         ],
       ),
     );
@@ -73,19 +112,23 @@ class MetricHistory extends StatelessWidget {
 }
 
 class _HistoryItem extends StatelessWidget {
-  final String date;
-  final String time;
-  final String value;
-  final String unit;
+  final HealthEntry entry;
+  final MetricInterface metric;
   final double change;
 
   const _HistoryItem({
-    required this.date,
-    required this.time,
-    required this.value,
-    required this.unit,
+    required this.entry,
+    required this.metric,
     required this.change,
   });
+
+  String _formatDate(DateTime date) {
+    return DateFormat('d MMM', 'ru').format(date);
+  }
+
+  String _formatTime(DateTime date) {
+    return DateFormat('HH:mm').format(date);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,30 +138,30 @@ class _HistoryItem extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.neutral50,
-            AppColors.neutral100,
+            AppTheme.surfaceVariant(context),
+            AppTheme.surface(context),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.neutral200,
+          color: AppTheme.border(context),
           width: 1,
         ),
       ),
       child: Row(
         children: [
-          // Иконка весов
+          // Иконка
           Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              gradient: AppColors.weightGradient,
+              gradient: metric.gradient,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
-              Icons.monitor_weight_outlined,
+            child: Icon(
+              metric.icon,
               color: Colors.white,
               size: 20,
             ),
@@ -130,23 +173,23 @@ class _HistoryItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  date,
+                  _formatDate(entry.createdAt),
                   style: TextStyles.bodyMedium.copyWith(
-                    color: AppColors.neutral800,
+                    color: AppTheme.textPrimary(context),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  time,
+                  _formatTime(entry.createdAt),
                   style: TextStyles.labelSmall.copyWith(
-                    color: AppColors.neutral500,
+                    color: AppTheme.textHint(context),
                   ),
                 ),
               ],
             ),
           ),
-          // Значение
+          const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -154,55 +197,48 @@ class _HistoryItem extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    value,
+                    metric.formatValueShort(entry),
                     style: TextStyles.titleMedium.copyWith(
-                      color: AppColors.neutral900,
+                      color: AppTheme.textPrimary(context),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    unit,
+                    metric.unit,
                     style: TextStyles.labelSmall.copyWith(
-                      color: AppColors.neutral500,
+                      color: AppTheme.textHint(context),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 2),
               // Изменение
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    change < 0 
-                        ? Icons.trending_down 
-                        : change > 0 
-                            ? Icons.trending_up 
-                            : Icons.trending_flat,
-                    size: 14,
-                    color: change < 0 
-                        ? AppColors.success500 
-                        : change > 0 
-                            ? AppColors.error500 
-                            : AppColors.neutral500,
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    change == 0 
-                        ? '0.0' 
-                        : '${change > 0 ? '+' : ''}${change.toStringAsFixed(1)}',
-                    style: TextStyles.labelXSmall.copyWith(
+              if (change != 0)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      change < 0 
+                          ? Icons.trending_down 
+                          : Icons.trending_up,
+                      size: 14,
                       color: change < 0 
                           ? AppColors.success500 
-                          : change > 0 
-                              ? AppColors.error500 
-                              : AppColors.neutral500,
-                      fontWeight: FontWeight.w500,
+                          : AppColors.error500,
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(width: 2),
+                    Text(
+                      '${change > 0 ? '+' : ''}${change.toStringAsFixed(1)}',
+                      style: TextStyles.labelXSmall.copyWith(
+                        color: change < 0 
+                            ? AppColors.success500 
+                            : AppColors.error500,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
             ],
           ),
         ],

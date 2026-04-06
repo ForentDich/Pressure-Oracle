@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import '../../../data/models/health_entry.dart';
 
 abstract class MetricInterface {
   String get title;
+  String get description;
   String get unit;
   Gradient get gradient;
   IconData get icon;
-  String get currentValue;
-  String get description;
-  String get lastUpdate;
+  EntryType get entryType;
+  
+  String formatValue(HealthEntry entry);
+  String formatValueShort(HealthEntry entry);
 }

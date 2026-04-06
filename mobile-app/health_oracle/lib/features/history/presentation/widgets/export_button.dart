@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/text_styles.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 
 class ExportButton extends StatelessWidget {
   final VoidCallback? onPressed;
@@ -18,12 +19,12 @@ class ExportButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: Material(
-        color: Colors.white,
+        color: AppTheme.surface(context),
         elevation: 2,
-        shadowColor: AppColors.cardShadow,
+        shadowColor: AppTheme.cardShadow(context),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: AppColors.buttonBorder),
+          side: BorderSide(color: AppTheme.border(context)),
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
@@ -51,18 +52,18 @@ class ExportButton extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Экспорт данных',
-                    style: TextStyles.bodyMedium.copyWith(color: Colors.black87),
+                    style: TextStyles.bodyMedium.copyWith(color: AppTheme.textPrimary(context)),
                   ),
                 ),
                 Container(
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: AppColors.neutral100,
+                    color: AppTheme.surfaceVariant(context),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(
-                    child: Icon(Icons.arrow_forward_ios, color: AppColors.neutral600, size: 14),
+                    child: Icon(Icons.arrow_forward_ios, color: AppTheme.textSecondary(context), size: 14),
                   ),
                 ),
               ],

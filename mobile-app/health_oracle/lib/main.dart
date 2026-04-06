@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/history/presentation/pages/history_page.dart';
@@ -8,12 +7,15 @@ import 'features/profile/presentation/pages/profile_page.dart';
 import 'features/onboarding/presentation/pages/onboarding_page.dart';
 import 'core/helpers/modal_helper.dart';
 import 'core/theme/colors.dart';
+import 'core/theme/app_theme.dart';
 import 'core/theme/text_styles.dart';
 import 'core/i18n/l10n_extension.dart';
 import 'data/services/profile_service.dart';
 import 'data/services/entry_service.dart';
 import 'data/services/reminder_service.dart';
 import 'data/services/notification_service.dart';
+import 'data/services/prediction_service.dart';
+import 'data/services/theme_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +23,9 @@ void main() async {
   await EntryService.init();
   await ReminderService.init();
   await NotificationService.init();
+  await ThemeService.init();
+  // Модели загружаем без await — не блокируем запуск приложения
+  PredictionService.init();
   runApp(const MyApp());
 }
 
@@ -32,21 +37,33 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Health Oracle',
-      theme: ThemeData(
-        fontFamily: 'Manrope',
-        useMaterial3: true,
-      ),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: needsOnboarding ? const OnboardingPage() : const MainNavigator(),
+    return ValueListenableBuilder<AppThemeMode>(
+      valueListenable: ThemeService.instance,
+      builder: (context, _, __) {
+        return MaterialApp(
+          title: 'Health Oracle',
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: ThemeService.instance.themeMode,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: needsOnboarding
+              ? const OnboardingPage()
+              : MainNavigator(key: MainNavigator.navigatorKey),
+        );
+      },
     );
   }
 }
 
 class MainNavigator extends StatefulWidget {
   const MainNavigator({super.key});
+
+  static final GlobalKey<_MainNavigatorState> navigatorKey = GlobalKey<_MainNavigatorState>();
+
+  static void goToHistory() {
+    navigatorKey.currentState?.goToHistory();
+  }
 
   @override
   State<MainNavigator> createState() => _MainNavigatorState();
@@ -68,6 +85,12 @@ class _MainNavigatorState extends State<MainNavigator> {
     });
   }
 
+  void goToHistory() {
+    setState(() {
+      _currentIndex = 1; // История - индекс 1
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,7 +103,7 @@ class _MainNavigatorState extends State<MainNavigator> {
     return Container(
       height: 70,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppTheme.surface(context),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(48),
           topRight: Radius.circular(48),
@@ -114,6 +137,8 @@ class _MainNavigatorState extends State<MainNavigator> {
 
   Widget _buildNavItem(IconData icon, IconData activeIcon, String label, int index) {
     final isSelected = _currentIndex == index;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final selectedColor = isDark ? Colors.white : AppColors.primary;
     return GestureDetector(
       onTap: () => _onItemTapped(index),
       behavior: HitTestBehavior.opaque,
@@ -124,7 +149,7 @@ class _MainNavigatorState extends State<MainNavigator> {
           children: [
             Icon(
               isSelected ? activeIcon : icon,
-              color: isSelected ? AppColors.primary : AppColors.neutral500,
+              color: isSelected ? selectedColor : AppTheme.textHint(context),
               size: 28,
             ),
             const SizedBox(height: 4),
@@ -132,7 +157,7 @@ class _MainNavigatorState extends State<MainNavigator> {
               label,
               style: TextStyles.labelSmall.copyWith(
                 fontSize: 10,
-                color: isSelected ? AppColors.primary : AppColors.neutral500,
+                color: isSelected ? selectedColor : AppTheme.textHint(context),
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
               ),
             ),
@@ -150,11 +175,11 @@ class _MainNavigatorState extends State<MainNavigator> {
         height: 48,
         margin: const EdgeInsets.only(bottom: 4),
         decoration: BoxDecoration(
-          color: AppColors.primary,
+          gradient: AppColors.purpleGradient,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.3),
+              color: const Color(0xFF8E2DE2).withOpacity(0.3),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),

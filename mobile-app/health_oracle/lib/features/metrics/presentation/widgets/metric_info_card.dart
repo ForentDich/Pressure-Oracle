@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/metric_interface.dart';
 import '../../../../core/theme/text_styles.dart';
-import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 
 class MetricInfoCard extends StatelessWidget {
   final MetricInterface metric;
@@ -15,31 +15,21 @@ class MetricInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.cardShadow,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppTheme.cardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'О метрике',
             style: TextStyles.titleMedium.copyWith(
-              color: AppColors.neutral800,
+              color: AppTheme.textPrimary(context),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             metric.description,
             style: TextStyles.bodyMedium.copyWith(
-              color: AppColors.neutral600,
+              color: AppTheme.textSecondary(context),
               height: 1.4,
             ),
           ),

@@ -158,6 +158,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get historyYourMeasurements => 'Ваши измерения';
 
   @override
+  String get allRecords => 'Все записи';
+
+  @override
   String get onboardingWelcome => 'Добро пожаловать!';
 
   @override
@@ -214,6 +217,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get week => 'Неделя';
+
+  @override
+  String get month => 'Месяц';
+
+  @override
+  String get year => 'Год';
+
+  @override
+  String get noDataForPeriod => 'Нет данных за этот период';
 
   @override
   String get weekdayMon => 'Пн';
@@ -318,6 +330,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get themeLight => 'Светлая';
 
   @override
+  String get themeDark => 'Тёмная';
+
+  @override
+  String get themeSystem => 'Системная';
+
+  @override
   String get fontSize => 'Размер текста';
 
   @override
@@ -325,6 +343,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get other => 'Прочее';
+
+  @override
+  String get aboutApp => 'О приложении';
 
   @override
   String get typeStandard => 'Стандартное';
@@ -387,4 +408,82 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get notificationCategoryLabel => 'Категория';
+
+  @override
+  String get sex => 'Пол';
+
+  @override
+  String get sexMale => 'Мужской';
+
+  @override
+  String get sexFemale => 'Женский';
+
+  @override
+  String get onboardingSexTitle => 'Ваш пол';
+
+  @override
+  String get onboardingSexSubtitle => 'Необходимо для точного анализа здоровья';
+
+  @override
+  String get analysis => 'Анализ';
+
+  @override
+  String get analysisTitle => 'Анализ здоровья';
+
+  @override
+  String get analysisSubtitle => 'Результаты ML-моделей';
+
+  @override
+  String get analysisBased => 'На основе ваших данных';
+
+  @override
+  String get analysisNoData => 'Недостаточно данных для анализа';
+
+  @override
+  String get analysisNoDataHint => 'Добавьте измерения давления и пульса';
+
+  @override
+  String get analysisHypertension => 'Риск гипертонии';
+
+  @override
+  String get analysisKidney => 'Риск болезней почек';
+
+  @override
+  String get analysisConfidence => 'Уверенность модели';
+
+  @override
+  String get analysisSBP => 'Сист. давление';
+
+  @override
+  String get analysisDBP => 'Диаст. давление';
+
+  @override
+  String get analysisPulse => 'Пульс';
+
+  @override
+  String get analysisBMI => 'ИМТ';
+
+  @override
+  String get analysisNormal => 'Норма';
+
+  @override
+  String get analysisPrehypertension => 'Предгипертензия';
+
+  @override
+  String get analysisStage1 => 'Гипертония 1 ст.';
+
+  @override
+  String get analysisStage2 => 'Гипертония 2 ст.';
+
+  @override
+  String get analysisLowRisk => 'Низкий риск';
+
+  @override
+  String get analysisHighRisk => 'Повышенный риск';
+
+  @override
+  String get analysisModelNotLoaded => 'Модель не загружена';
+
+  @override
+  String get analysisCategories => 'Категории показателей';
 }

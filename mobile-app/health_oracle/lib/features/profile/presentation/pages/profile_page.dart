@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 import '../../../../core/i18n/l10n_extension.dart';
 import '../../../../data/data.dart';
@@ -41,9 +42,9 @@ class _ProfilePageState extends State<ProfilePage> {
     return '${height.toStringAsFixed(0)} ${context.l10n.unitCm}';
   }
 
-  String _formatWeight(BuildContext context, double? weight) {
-    if (weight == null) return context.l10n.notSpecified;
-    return '${weight.toStringAsFixed(1)} ${context.l10n.unitKg}';
+  String _formatSex(BuildContext context, bool? sex) {
+    if (sex == null) return context.l10n.notSpecified;
+    return sex ? context.l10n.sexMale : context.l10n.sexFemale;
   }
 
   @override
@@ -108,9 +109,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 Expanded(
                   child: Container(
                     width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.vertical(
+                    decoration: BoxDecoration(
+                      color: AppTheme.background(context),
+                      borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(30),
                       ),
                     ),
@@ -136,6 +137,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                   label: context.l10n.birthDate, 
                                   value: _formatDate(context, _profile.birthDate),
                                 ),
+                                ProfileItem(
+                                  label: context.l10n.sex,
+                                  value: _formatSex(context, _profile.sex),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 20),
@@ -147,28 +152,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                   label: context.l10n.height, 
                                   value: _formatHeight(context, _profile.height),
                                 ),
-                                ProfileItem(
-                                  label: context.l10n.weight, 
-                                  value: _formatWeight(context, _profile.weight),
-                                ),
                               ],
                             ),
                             const SizedBox(height: 40),
-                            // Debug button - clear all data
-                            TextButton(
-                              onPressed: () async {
-                                await ProfileService.deleteProfile();
-                                if (mounted) {
-                                  _loadProfile();
-                                }
-                              },
-                              child: Text(
-                                'Очистить данные',
-                                style: TextStyles.bodyMedium.copyWith(
-                                  color: Colors.red,
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                       ),

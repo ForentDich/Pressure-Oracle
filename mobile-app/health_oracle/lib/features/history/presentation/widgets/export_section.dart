@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 
 class ExportSection extends StatelessWidget {
@@ -24,17 +25,7 @@ class ExportSection extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.neutral900.withValues(alpha: 0.08),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
+          decoration: AppTheme.cardDecoration(context, radius: 20, blurRadius: 16, shadowOffset: const Offset(0, 6)),
           child: child,
         ),
       ],

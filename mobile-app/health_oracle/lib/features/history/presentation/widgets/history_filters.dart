@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 
 class HistoryFilters extends StatefulWidget {
@@ -54,10 +55,10 @@ class _HistoryFiltersState extends State<HistoryFilters> {
             borderRadius: BorderRadius.circular(16),
             child: Container(
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : Colors.white,
+                color: isSelected ? AppColors.primary : AppTheme.surface(context),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: isSelected ? AppColors.primary : AppColors.neutral200,
+                  color: isSelected ? AppColors.primary : AppTheme.border(context),
                 ),
               ),
               alignment: Alignment.center,
@@ -67,13 +68,13 @@ class _HistoryFiltersState extends State<HistoryFilters> {
                   Icon(
                     icon,
                     size: 18,
-                    color: isSelected ? Colors.white : AppColors.neutral600,
+                    color: isSelected ? Colors.white : AppTheme.textSecondary(context),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     filter,
                     style: TextStyles.bodyMedium.copyWith(
-                      color: isSelected ? Colors.white : AppColors.neutral600,
+                      color: isSelected ? Colors.white : AppTheme.textSecondary(context),
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),

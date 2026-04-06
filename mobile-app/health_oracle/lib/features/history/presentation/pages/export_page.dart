@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 import '../widgets/widgets.dart';
 
@@ -46,8 +47,8 @@ class ExportPage extends StatelessWidget {
                 Expanded(
                   child: Container(
                     width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: AppTheme.surface(context),
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(30),
                       ),
@@ -121,7 +122,7 @@ class ExportPage extends StatelessWidget {
                                     },
                                     style: OutlinedButton.styleFrom(
                                       foregroundColor: AppColors.neutral700,
-                                      side: const BorderSide(color: AppColors.neutral300),
+                                      side: BorderSide(color: AppTheme.border(context)),
                                       padding: const EdgeInsets.symmetric(vertical: 16),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(16),
@@ -134,10 +135,11 @@ class ExportPage extends StatelessWidget {
                                 Expanded(
                                   child: Container(
                                     decoration: BoxDecoration(
+                                      gradient: AppColors.purpleGradient,
                                       borderRadius: BorderRadius.circular(16),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: AppColors.primary.withValues(alpha: 0.3),
+                                          color: const Color(0xFF8E2DE2).withValues(alpha: 0.3),
                                           blurRadius: 12,
                                           offset: const Offset(0, 6),
                                         ),
@@ -148,7 +150,8 @@ class ExportPage extends StatelessWidget {
                                         Navigator.of(context).pop();
                                       },
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primary,
+                                        backgroundColor: Colors.transparent,
+                                        shadowColor: Colors.transparent,
                                         foregroundColor: Colors.white,
                                         padding: const EdgeInsets.symmetric(vertical: 16),
                                         elevation: 0,

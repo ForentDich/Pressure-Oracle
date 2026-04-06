@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 
 class ProfileCard extends StatelessWidget {
@@ -19,17 +20,7 @@ class ProfileCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.neutral900.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      decoration: AppTheme.cardDecoration(context, radius: 20, shadowAlpha: 0.1, blurRadius: 8, shadowOffset: const Offset(0, 4)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -47,12 +38,12 @@ class ProfileCard extends StatelessWidget {
               Text(
                 title,
                 style: TextStyles.titleMedium.copyWith(
-                  color: AppColors.neutral900,
+                  color: AppTheme.textPrimary(context),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           ...items,
         ],
       ),
@@ -75,12 +66,12 @@ class ProfileItem extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyles.bodyMedium.copyWith(color: AppColors.neutral600),
+            style: TextStyles.bodyMedium.copyWith(color: AppTheme.textSecondary(context)),
           ),
           Text(
             value,
             style: TextStyles.bodyMedium.copyWith(
-              color: AppColors.neutral900,
+              color: AppTheme.textPrimary(context),
               fontWeight: FontWeight.w600,
             ),
           ),

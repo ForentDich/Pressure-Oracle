@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 
 class ScheduleItem extends StatelessWidget {
@@ -32,17 +33,7 @@ class ScheduleItem extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.cardShadow.withValues(alpha: 0.06),
-              blurRadius: 12,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
+        decoration: AppTheme.cardDecoration(context, radius: 18),
         child: Row(
           children: [
             Container(
@@ -50,12 +41,12 @@ class ScheduleItem extends StatelessWidget {
               height: 48,
               decoration: BoxDecoration(
                 gradient: isActive ? gradient : null,
-                color: isActive ? null : AppColors.neutral200,
+                color: isActive ? null : AppTheme.surfaceVariant(context),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
                 icon,
-                color: isActive ? Colors.white : AppColors.neutral500,
+                color: isActive ? Colors.white : AppTheme.textHint(context),
                 size: 24,
               ),
             ),
@@ -68,7 +59,7 @@ class ScheduleItem extends StatelessWidget {
                     title,
                     style: TextStyles.titleMedium.copyWith(
                       fontSize: 16,
-                      color: isActive ? AppColors.neutral900 : AppColors.neutral600,
+                      color: isActive ? AppTheme.textPrimary(context) : AppTheme.textSecondary(context),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -77,14 +68,14 @@ class ScheduleItem extends StatelessWidget {
                       Icon(
                         Icons.access_time,
                         size: 14,
-                        color: AppColors.neutral500,
+                        color: AppTheme.textHint(context),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         time,
                         style: TextStyles.bodyMedium.copyWith(
                           fontSize: 13,
-                          color: AppColors.neutral600,
+                          color: AppTheme.textSecondary(context),
                         ),
                       ),
                       Container(
@@ -92,7 +83,7 @@ class ScheduleItem extends StatelessWidget {
                         width: 4,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: AppColors.neutral400,
+                          color: AppTheme.textHint(context),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -100,7 +91,7 @@ class ScheduleItem extends StatelessWidget {
                         repeat,
                         style: TextStyles.bodyMedium.copyWith(
                           fontSize: 13,
-                          color: AppColors.neutral500,
+                          color: AppTheme.textHint(context),
                         ),
                       ),
                     ],
@@ -110,7 +101,7 @@ class ScheduleItem extends StatelessWidget {
                     category,
                     style: TextStyles.bodyMedium.copyWith(
                       fontSize: 12,
-                      color: AppColors.neutral400,
+                      color: AppTheme.textHint(context),
                     ),
                   ),
                 ],
@@ -119,7 +110,6 @@ class ScheduleItem extends StatelessWidget {
             Switch(
               value: isActive,
               onChanged: onToggle ?? (_) {},
-              activeColor: AppColors.success500,
             ),
           ],
         ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 
 class ScheduleSection extends StatelessWidget {
@@ -22,7 +22,7 @@ class ScheduleSection extends StatelessWidget {
           child: Text(
             title,
             style: TextStyles.titleMedium.copyWith(
-              color: AppColors.neutral900,
+              color: AppTheme.textPrimary(context),
             ),
           ),
         ),

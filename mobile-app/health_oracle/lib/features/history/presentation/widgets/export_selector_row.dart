@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 
 class ExportSelectorRow extends StatelessWidget {
@@ -36,20 +37,20 @@ class ExportSelectorRow extends StatelessWidget {
                 label,
                 style: TextStyles.bodyMedium.copyWith(
                   fontSize: 14,
-                  color: AppColors.neutral600,
+                  color: AppTheme.textSecondary(context),
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
                 style: TextStyles.bodyMedium.copyWith(
-                  color: AppColors.neutral900,
+                  color: AppTheme.textPrimary(context),
                 ),
               ),
             ],
           ),
         ),
-        Icon(Icons.chevron_right, color: AppColors.neutral400),
+        Icon(Icons.chevron_right, color: AppTheme.textHint(context)),
       ],
     );
   }

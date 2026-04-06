@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 
 class DateSelector extends StatefulWidget {
@@ -42,14 +43,14 @@ class _DateSelectorState extends State<DateSelector> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.surface(context),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.neutral200),
+          border: Border.all(color: AppTheme.border(context)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.neutral600),
+            Icon(Icons.calendar_today_rounded, size: 16, color: AppTheme.textSecondary(context)),
             const SizedBox(width: 8),
             Text(
               _formatDate(_selectedDate),
@@ -59,7 +60,7 @@ class _DateSelectorState extends State<DateSelector> {
               ),
             ),
             const SizedBox(width: 4),
-            const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppColors.neutral600),
+            Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppTheme.textSecondary(context)),
           ],
         ),
       ),
