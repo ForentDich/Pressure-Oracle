@@ -7,6 +7,27 @@ import '../../../../data/data.dart';
 
 enum _KidneyPredictionMode { latest, average }
 
+/// Модель для хранения пользовательских данных формы почек.
+class _KidneyFormData {
+  final double hemoglobin;
+  final double geneticCoef;
+  final int smoking;
+  final double physicalActivity;
+  final double saltIntake;
+  final double alcoholPerDay;
+  final int stressLevel;
+
+  const _KidneyFormData({
+    this.hemoglobin = 11.3,
+    this.geneticCoef = 0.5,
+    this.smoking = 1,
+    this.physicalActivity = 25734.0,
+    this.saltIntake = 25130.5,
+    this.alcoholPerDay = 253.0,
+    this.stressLevel = 2,
+  });
+}
+
 class AnalysisKidneyPage extends StatefulWidget {
   const AnalysisKidneyPage({super.key});
 
@@ -19,6 +40,7 @@ class _AnalysisKidneyPageState extends State<AnalysisKidneyPage> {
   KidneyResult? _kidneyResult;
   bool _usesEstimatedInputs = false;
   _KidneyPredictionMode _mode = _KidneyPredictionMode.average;
+  _KidneyFormData _formData = const _KidneyFormData();
 
   @override
   void initState() {
@@ -76,7 +98,8 @@ class _AnalysisKidneyPageState extends State<AnalysisKidneyPage> {
     double alcoholPerDay,
     int stressLevel,
     bool usesEstimatedInputs,
-  }) _buildKidneyInputs() {
+  })
+  _buildKidneyInputs() {
     const defaults = (
       hemoglobin: 11.3,
       geneticCoef: 0.5,
@@ -114,8 +137,9 @@ class _AnalysisKidneyPageState extends State<AnalysisKidneyPage> {
 
     var bpAbnormality = 0;
     if (pressurePair != null) {
-      bpAbnormality =
-          (pressurePair.sbp >= 140 || pressurePair.dbp >= 90) ? 1 : 0;
+      bpAbnormality = (pressurePair.sbp >= 140 || pressurePair.dbp >= 90)
+          ? 1
+          : 0;
     }
 
     var bmi = defaults.bmi;
@@ -128,24 +152,27 @@ class _AnalysisKidneyPageState extends State<AnalysisKidneyPage> {
       usesEstimated = true;
     }
 
+    // Используем данные из формы, если они были заполнены пользователем,
+    // иначе — значения по умолчанию
     return (
       bpAbnormality: bpAbnormality,
-      hemoglobin: defaults.hemoglobin,
-      geneticCoef: defaults.geneticCoef,
+      hemoglobin: _formData.hemoglobin,
+      geneticCoef: _formData.geneticCoef,
       age: age,
       bmi: bmi,
       sex: sex,
-      smoking: defaults.smoking,
-      physicalActivity: defaults.physicalActivity,
-      saltIntake: defaults.saltIntake,
-      alcoholPerDay: defaults.alcoholPerDay,
-      stressLevel: defaults.stressLevel,
+      smoking: _formData.smoking,
+      physicalActivity: _formData.physicalActivity,
+      saltIntake: _formData.saltIntake,
+      alcoholPerDay: _formData.alcoholPerDay,
+      stressLevel: _formData.stressLevel,
       usesEstimatedInputs: usesEstimated,
     );
   }
 
   ({double sbp, double dbp})? _selectPressurePair(
-      Iterable<HealthEntry> entries) {
+    Iterable<HealthEntry> entries,
+  ) {
     final list = entries.toList();
     if (list.isEmpty) return null;
 
@@ -187,6 +214,22 @@ class _AnalysisKidneyPageState extends State<AnalysisKidneyPage> {
     return (sbp: sbp, dbp: dbp);
   }
 
+  Future<void> _openForm() async {
+    final result = await showModalBottomSheet<_KidneyFormData>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _KidneyFormSheet(initialData: _formData),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _formData = result;
+      });
+      _runKidneyAnalysis();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) {
@@ -207,7 +250,9 @@ class _AnalysisKidneyPageState extends State<AnalysisKidneyPage> {
     final hasKidneyDisease = risk >= 0.5;
     final confidence = hasKidneyDisease ? risk : normal;
 
-    final statusColor = hasKidneyDisease ? AppColors.error500 : AppColors.success500;
+    final statusColor = hasKidneyDisease
+        ? AppColors.error500
+        : AppColors.success500;
     final statusBg = statusColor.withValues(alpha: 0.1);
 
     return SingleChildScrollView(
@@ -224,6 +269,34 @@ class _AnalysisKidneyPageState extends State<AnalysisKidneyPage> {
             style: TextStyles.bodyMedium.copyWith(
               color: AppTheme.textHint(context),
               fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Кнопка "Заполнить форму"
+          SizedBox(
+            width: double.infinity,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: AppColors.purpleGradient,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: OutlinedButton.icon(
+                onPressed: _openForm,
+                icon: const Icon(Icons.edit_note_rounded, size: 20),
+                label: const Text(
+                  'Заполнить форму',
+                  style: TextStyle(fontSize: 16),
+                ),
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  side: BorderSide.none,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -246,7 +319,11 @@ class _AnalysisKidneyPageState extends State<AnalysisKidneyPage> {
                         color: statusBg,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(Icons.health_and_safety_rounded, color: statusColor, size: 24),
+                      child: Icon(
+                        Icons.health_and_safety_rounded,
+                        color: statusColor,
+                        size: 24,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -546,12 +623,17 @@ class _AnalysisKidneyPageState extends State<AnalysisKidneyPage> {
                     width: 8,
                     height: 8,
                     margin: const EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                    ),
                   ),
                 Text(
                   label,
                   style: TextStyles.bodyMedium.copyWith(
-                    color: isActive ? AppTheme.textPrimary(context) : AppTheme.textSecondary(context),
+                    color: isActive
+                        ? AppTheme.textPrimary(context)
+                        : AppTheme.textSecondary(context),
                     fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                     fontSize: 14,
                   ),
@@ -577,6 +659,427 @@ class _AnalysisKidneyPageState extends State<AnalysisKidneyPage> {
             backgroundColor: AppTheme.border(context),
             color: color,
           ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Bottom Sheet форма для ввода параметров ─────────────────────
+
+class _KidneyFormSheet extends StatefulWidget {
+  final _KidneyFormData initialData;
+
+  const _KidneyFormSheet({required this.initialData});
+
+  @override
+  State<_KidneyFormSheet> createState() => _KidneyFormSheetState();
+}
+
+class _KidneyFormSheetState extends State<_KidneyFormSheet> {
+  late TextEditingController _hemoglobinController;
+  late TextEditingController _geneticCoefController;
+  late TextEditingController _physicalActivityController;
+  late TextEditingController _saltIntakeController;
+  late TextEditingController _alcoholController;
+  int _smoking = 1;
+  int _stressLevel = 2;
+
+  @override
+  void initState() {
+    super.initState();
+    _hemoglobinController = TextEditingController(
+      text: widget.initialData.hemoglobin.toString(),
+    );
+    _geneticCoefController = TextEditingController(
+      text: widget.initialData.geneticCoef.toString(),
+    );
+    _physicalActivityController = TextEditingController(
+      text: widget.initialData.physicalActivity.toString(),
+    );
+    _saltIntakeController = TextEditingController(
+      text: widget.initialData.saltIntake.toString(),
+    );
+    _alcoholController = TextEditingController(
+      text: widget.initialData.alcoholPerDay.toString(),
+    );
+    _smoking = widget.initialData.smoking;
+    _stressLevel = widget.initialData.stressLevel;
+  }
+
+  @override
+  void dispose() {
+    _hemoglobinController.dispose();
+    _geneticCoefController.dispose();
+    _physicalActivityController.dispose();
+    _saltIntakeController.dispose();
+    _alcoholController.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final data = _KidneyFormData(
+      hemoglobin: double.tryParse(_hemoglobinController.text) ?? 11.3,
+      geneticCoef: double.tryParse(_geneticCoefController.text) ?? 0.5,
+      smoking: _smoking,
+      physicalActivity:
+          double.tryParse(_physicalActivityController.text) ?? 25734.0,
+      saltIntake: double.tryParse(_saltIntakeController.text) ?? 25130.5,
+      alcoholPerDay: double.tryParse(_alcoholController.text) ?? 253.0,
+      stressLevel: _stressLevel,
+    );
+    Navigator.of(context).pop(data);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return Container(
+      margin: EdgeInsets.only(top: 40),
+      decoration: BoxDecoration(
+        color: AppTheme.surface(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(20, 12, 20, bottomInset + 20),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Handle
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.divider(context),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Text(
+                'Параметры анализа почек',
+                style: TextStyles.titleMedium.copyWith(
+                  color: AppTheme.textPrimary(context),
+                  fontSize: 20,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Заполните данные для более точного прогноза',
+                style: TextStyles.bodyMedium.copyWith(
+                  color: AppTheme.textHint(context),
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Гемоглобин
+              _buildField(
+                label: 'Уровень гемоглобина',
+                hint: '11.3',
+                unit: 'г/дл',
+                controller: _hemoglobinController,
+              ),
+              const SizedBox(height: 16),
+
+              // Генетический коэффициент
+              _buildField(
+                label: 'Генетический коэффициент',
+                hint: '0.5',
+                unit: '',
+                controller: _geneticCoefController,
+              ),
+              const SizedBox(height: 16),
+
+              // Курение
+              _buildSwitchRow(
+                label: 'Курение',
+                value: _smoking == 1,
+                onChanged: (v) => setState(() => _smoking = v ? 1 : 0),
+                subtitle: _smoking == 1 ? 'Курит' : 'Не курит',
+              ),
+              const SizedBox(height: 16),
+
+              // Физ. активность
+              _buildField(
+                label: 'Физическая активность',
+                hint: '25734',
+                unit: 'шагов/день',
+                controller: _physicalActivityController,
+              ),
+              const SizedBox(height: 16),
+
+              // Потребление соли
+              _buildField(
+                label: 'Потребление соли в диете',
+                hint: '25130.5',
+                unit: 'мг/день',
+                controller: _saltIntakeController,
+              ),
+              const SizedBox(height: 16),
+
+              // Алкоголь
+              _buildField(
+                label: 'Потребление алкоголя в день',
+                hint: '253.0',
+                unit: 'мл/день',
+                controller: _alcoholController,
+              ),
+              const SizedBox(height: 16),
+
+              // Уровень стресса
+              _buildStressSelector(),
+              const SizedBox(height: 24),
+
+              // Кнопки
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.textSecondary(context),
+                        side: BorderSide(color: AppTheme.border(context)),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text('Отмена'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: AppColors.purpleGradient,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0xFF8E2DE2,
+                            ).withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: _save,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: const Text(
+                          'Применить',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildField({
+    required String label,
+    required String hint,
+    required String unit,
+    required TextEditingController controller,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyles.bodyMedium.copyWith(
+            color: AppTheme.textSecondary(context),
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          height: 52,
+          decoration: BoxDecoration(
+            color: AppTheme.surfaceVariant(context),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppTheme.border(context)),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  style: TextStyles.bodyMedium.copyWith(
+                    fontSize: 16,
+                    color: AppTheme.textPrimary(context),
+                  ),
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    hintStyle: TextStyles.bodyMedium.copyWith(
+                      color: AppTheme.textHint(context),
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+              if (unit.isNotEmpty) ...[
+                Container(
+                  width: 1,
+                  height: 20,
+                  color: AppTheme.divider(context),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Text(
+                    unit,
+                    style: TextStyles.bodyMedium.copyWith(
+                      color: AppTheme.textHint(context),
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSwitchRow({
+    required String label,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+    required String subtitle,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyles.bodyMedium.copyWith(
+                    color: AppTheme.textSecondary(context),
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyles.bodyMedium.copyWith(
+                    color: AppTheme.textPrimary(context),
+                    fontSize: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(value: value, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStressSelector() {
+    const levels = ['Низкий', 'Средний', 'Высокий'];
+    final colors = [
+      AppColors.success500,
+      AppColors.warning500,
+      AppColors.error500,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Уровень стресса',
+          style: TextStyles.bodyMedium.copyWith(
+            color: AppTheme.textSecondary(context),
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: List.generate(3, (index) {
+            final isSelected = _stressLevel == index;
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: index < 2 ? 8 : 0),
+                child: GestureDetector(
+                  onTap: () => setState(() => _stressLevel = index),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? colors[index].withValues(alpha: 0.1)
+                          : AppTheme.surfaceVariant(context),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected
+                            ? colors[index]
+                            : AppTheme.border(context),
+                        width: isSelected ? 2 : 1,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(
+                          index == 0
+                              ? Icons.sentiment_very_satisfied
+                              : index == 1
+                              ? Icons.sentiment_neutral
+                              : Icons.sentiment_very_dissatisfied,
+                          size: 24,
+                          color: isSelected
+                              ? colors[index]
+                              : AppTheme.textHint(context),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          levels[index],
+                          style: TextStyles.labelSmall.copyWith(
+                            fontSize: 13,
+                            color: isSelected
+                                ? colors[index]
+                                : AppTheme.textSecondary(context),
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
         ),
       ],
     );

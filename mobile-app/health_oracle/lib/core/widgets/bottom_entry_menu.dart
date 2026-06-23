@@ -69,69 +69,43 @@ class _BottomEntryMenuState extends State<BottomEntryMenu> {
     
   }
 
-  void _saveData() async {
-    print('_saveData called, selected categories: $_selected');
-    
-    // Сохраняем записи в Hive
+   void _saveData(BuildContext context) async{
+
     for (final category in _selected) {
-      final controllers = _controllers[category]!;
-      
-      switch (category) {
-        case 'Давление':
-          final systolicText = controllers['верхнее']?.text ?? '';
-          final diastolicText = controllers['нижнее']?.text ?? '';
-          print('Давление: systolic="$systolicText", diastolic="$diastolicText"');
-          final systolic = double.tryParse(systolicText);
-          final diastolic = double.tryParse(diastolicText);
-          if (systolic != null) {
-            await EntryService.add(
-              type: EntryType.pressure,
-              value: systolic,
-              secondaryValue: diastolic,
-            );
-            print('Давление сохранено');
-          } else {
-            print('Давление: systolic is null, not saving');
-          }
-          break;
-        case 'Пульс':
-          final pulseText = controllers['пульс']?.text ?? '';
-          print('Пульс: text="$pulseText"');
-          final pulse = double.tryParse(pulseText);
-          if (pulse != null) {
-            await EntryService.add(
-              type: EntryType.pulse,
-              value: pulse,
-            );
-            print('Пульс сохранён');
-          }
-          break;
-        case 'Вес':
-          final weightText = controllers['вес']?.text ?? '';
-          print('Вес: text="$weightText"');
-          final weight = double.tryParse(weightText);
-          if (weight != null) {
-            await EntryService.add(
-              type: EntryType.weight,
-              value: weight,
-            );
-            print('Вес сохранён');
-          }
-          break;
-        case 'Сахар':
-          final sugarText = controllers['сахар']?.text ?? '';
-          print('Сахар: text="$sugarText"');
-          final sugar = double.tryParse(sugarText);
-          if (sugar != null) {
-            await EntryService.add(
-              type: EntryType.sugar,
-              value: sugar,
-            );
-            print('Сахар сохранён');
-          }
-          break;
-      }
+    final controllers = _controllers[category]!;
+    switch (category) {
+      case 'Давление':
+        final sys = double.parse(controllers['верхнее']!.text);
+        final dia = double.parse(controllers['нижнее']!.text);
+        await EntryService.add(
+          type: EntryType.pressure,
+          value: sys,      // верхнее
+          secondaryValue: dia, // нижнее
+        );
+        break;
+      case 'Пульс':
+        final pulse = double.parse(controllers['пульс']!.text);
+        await EntryService.add(
+          type: EntryType.pulse,
+          value: pulse,
+        );
+        break;
+      case 'Вес':
+        final weight = double.parse(controllers['вес']!.text);
+        await EntryService.add(
+          type: EntryType.weight,
+          value: weight,
+        );
+        break;
+      case 'Сахар':
+        final sugar = double.parse(controllers['сахар']!.text);
+        await EntryService.add(
+          type: EntryType.sugar,
+          value: sugar,
+        );
+        break;
     }
+  }
     
     // Вызываем callback если есть
     final data = <String, Map<String, String>>{};
@@ -143,6 +117,7 @@ class _BottomEntryMenuState extends State<BottomEntryMenu> {
     }
     widget.onSave?.call(data);
   }
+
 
   @override
   void dispose() {
@@ -230,7 +205,7 @@ class _BottomEntryMenuState extends State<BottomEntryMenu> {
 
           BottomEntryActions(
             onCancel: widget.onCancel,
-            onSave: _saveData,
+           onSave: () => _saveData(context),
           ),
         ],
       ),

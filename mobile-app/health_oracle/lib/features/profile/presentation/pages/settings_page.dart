@@ -3,10 +3,12 @@ import '../../../../core/theme/colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/text_styles.dart';
 import '../../../../core/i18n/l10n_extension.dart';
+import '../../../../data/services/reminder_service.dart';
 import '../../../../data/services/theme_service.dart';
 import '../../../../data/services/notification_service.dart';
 import '../../../../data/services/profile_service.dart';
 import '../../../../data/services/entry_service.dart';
+import '../../../onboarding/presentation/pages/onboarding_page.dart';
 import '../widgets/settings/settings_widgets.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -23,7 +25,7 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (ctx) => AlertDialog(
         title: const Text('Очистить данные'),
         content: const Text(
-          'Вы точно уверены? Это действие удалит все ваши данные профиля и записи. '
+          'Вы точно уверены? Это действие удалит все ваши данные. '
           'Это невозможно отменить.',
         ),
         actions: [
@@ -43,12 +45,17 @@ class _SettingsPageState extends State<SettingsPage> {
     );
 
     if (confirmed == true) {
-      await ProfileService.deleteProfile();
-      // await EntryService.clear();
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
+    await ProfileService.deleteProfile();
+    await EntryService.deleteAll();
+    await ReminderService.deleteAll();
+    await NotificationService.cancelAll();
+    if (mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const OnboardingPage()),
+        (route) => false,
+      );
     }
+  }
   }
 
   @override
@@ -106,20 +113,28 @@ class _SettingsPageState extends State<SettingsPage> {
                             const SizedBox(height: 20),
                             // ─── Уведомления ──────────────────
                             SettingsGroup(
-                              title: context.l10n.notifications,
-                              children: [
-                                SettingsSwitch(
-                                  icon: Icons.notifications_none,
-                                  label: context.l10n.reminders,
-                                  value: true,
-                                  onChanged: (val) async {
-                                    await NotificationService
-                                        .requestPermissions();
-                                    setState(() {});
-                                  },
-                                ),
-                              ],
-                            ),
+  title: context.l10n.notifications,
+  children: [
+    SettingsSwitch(
+      icon: Icons.notifications_none,
+      label: context.l10n.reminders,
+      value: themeService.notificationsEnabled,  // читаем из сервиса
+      onChanged: (val) async {
+        await themeService.setNotificationsEnabled(val);
+        setState(() {});
+        if (val) {
+          // Если включили – запрашиваем разрешения и перепланируем
+          await NotificationService.requestPermissions();
+          final reminders = ReminderService.getActive();
+          await NotificationService.rescheduleAllReminders(reminders);
+        } else {
+          // Если выключили – отменяем все уведомления
+          await NotificationService.cancelAll();
+        }
+      },
+    ),
+  ],
+),
                             const SizedBox(height: 20),
                             // ─── Прочее ────────────────────────
                             SettingsGroup(
@@ -128,7 +143,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 SettingsNav(
                                   icon: Icons.info_outline,
                                   label: context.l10n.aboutApp,
-                                  value: 'v1.0.0',
+                                  value: 'v0.6.7',
                                   onTap: () => _showAbout(context),
                                 ),
                                 const SettingsDivider(),
@@ -178,7 +193,7 @@ class _SettingsPageState extends State<SettingsPage> {
     showAboutDialog(
       context: context,
       applicationName: 'Health Oracle',
-      applicationVersion: '1.0.0',
+      applicationVersion: '0.6.7',
       applicationIcon: Container(
         width: 48,
         height: 48,

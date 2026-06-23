@@ -12,6 +12,7 @@ enum AppThemeMode {
 class ThemeService extends ValueNotifier<AppThemeMode> {
   static const String _boxName = 'settings';
   static const String _themeKey = 'theme_mode';
+  static const String _notificationsKey = 'notifications_enabled';
 
   static Box? _box;
   static ThemeService? _instance;
@@ -66,5 +67,13 @@ class ThemeService extends ValueNotifier<AppThemeMode> {
       case AppThemeMode.system:
         return 'Системная';
     }
+  }
+
+   bool get notificationsEnabled {
+    return _box?.get(_notificationsKey, defaultValue: true) as bool? ?? true;
+  }
+
+  Future<void> setNotificationsEnabled(bool enabled) async {
+    await _box?.put(_notificationsKey, enabled);
   }
 }

@@ -8,7 +8,7 @@ class PressureMetric implements MetricInterface {
   String get title => 'ДАВЛЕНИЕ';
   
   @override
-  String get description => 'Артериальное давление — важный показатель здоровья сердечно-сосудистой системы. Нормальным считается давление 120/80 мм рт.ст.';
+  String get description => 'Артериальное давление — ключевой маркер состояния сердечно-сосудистой системы, отражающий силу воздействия крови на стенки сосудов.';
   
   @override
   String get unit => 'мм рт.ст.';

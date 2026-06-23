@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:health_oracle/data/services/theme_service.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz_data;
 import '../../l10n/app_localizations.dart';
@@ -14,7 +15,8 @@ class NotificationService {
 
     tz_data.initializeTimeZones();
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings =
+        AndroidInitializationSettings('ic_stat_notification');
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -90,6 +92,10 @@ class NotificationService {
   static Future<void> scheduleReminder(Reminder reminder) async {
     if (!reminder.isActive) return;
 
+    if (!ThemeService.instance.notificationsEnabled) {
+    return;
+    }
+
     final notificationId = reminder.id.hashCode;
     final categoryName = _getCategoryName(reminder.category);
     final categoryLabel = _l10n.notificationCategoryLabel;
@@ -103,7 +109,7 @@ class NotificationService {
       channelDescription: 'Напоминания о измерениях',
       importance: Importance.high,
       priority: Priority.high,
-      icon: '@mipmap/ic_launcher',
+      icon: 'ic_stat_notification',
     );
 
     const iosDetails = DarwinNotificationDetails(

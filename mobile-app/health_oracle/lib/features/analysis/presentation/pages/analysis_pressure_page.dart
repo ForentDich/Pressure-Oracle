@@ -56,9 +56,6 @@ class _AnalysisPressurePageState extends State<AnalysisPressurePage>
     HypertensionResult? nextResult;
     if (PredictionService.isHypertensionModelReady) {
       try {
-        // Передаем флаг сервису.
-        // ВНИМАНИЕ: Вам нужно зайти в PredictionService и добавить 
-        // аргумент {bool isLatest = false} в метод predictHypertension()
         nextResult = PredictionService.predictHypertension(
           isLatest: _mode == _PressurePredictionMode.latest,
         );
@@ -289,7 +286,7 @@ class _AnalysisPressurePageState extends State<AnalysisPressurePage>
             ),
             if (kDebugMode) ...[
               const SizedBox(height: 16),
-              _buildDebugCard(context),
+             
             ],
           ],
         ),
@@ -297,39 +294,17 @@ class _AnalysisPressurePageState extends State<AnalysisPressurePage>
     );
   }
 
-  Widget _buildDebugCard(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceVariant(context),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.border(context)),
-      ),
-      child: DefaultTextStyle(
-        style: TextStyles.bodyMedium.copyWith(
-          color: AppTheme.textSecondary(context),
-          fontSize: 12,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('DEBUG'),
-            const SizedBox(height: 6),
-            Text('modelReady: ${PredictionService.isHypertensionModelReady}'),
-            Text('mode: $_mode'),
-            Text('lastRunAt: ${_debugLastRunAt?.toIso8601String() ?? '-'}'),
-            Text('error: ${_debugLastError ?? '-'}'),
-          ],
-        ),
-      ),
-    );
-  }
+  
 
   Widget _buildHypertensionCard(BuildContext context, HypertensionResult result) {
-    final severityColor = _severityColor(result.severity);
-    final severityBgColor = _severityBgColor(result.severity);
-    final confidencePercent = (result.confidence * 100).toStringAsFixed(0);
+    final bool isHypotension = result.isHypotension;
+    final String title = isHypotension ? 'Риск гипотензии' : context.l10n.analysisHypertension;
+    final IconData icon = isHypotension ? Icons.arrow_downward_rounded : Icons.favorite_rounded;
+    final Color severityColor = isHypotension ? AppColors.error500 : _severityColor(result.severity);
+    final Color severityBgColor = isHypotension
+        ? AppColors.error500.withOpacity(0.1)
+        : _severityBgColor(result.severity);
+    final double confidence = isHypotension ? 1.0 : result.confidence;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -345,7 +320,7 @@ class _AnalysisPressurePageState extends State<AnalysisPressurePage>
                   color: severityBgColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(Icons.favorite_rounded, color: severityColor, size: 24),
+                child: Icon(icon, color: severityColor, size: 24),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -353,7 +328,7 @@ class _AnalysisPressurePageState extends State<AnalysisPressurePage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      context.l10n.analysisHypertension,
+                      title,
                       style: TextStyles.bodyMedium.copyWith(
                         color: AppTheme.textHint(context),
                         fontSize: 13,
@@ -374,36 +349,38 @@ class _AnalysisPressurePageState extends State<AnalysisPressurePage>
             ],
           ),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                context.l10n.analysisConfidence,
-                style: TextStyles.bodyMedium.copyWith(
-                  color: AppTheme.textSecondary(context),
-                  fontSize: 13,
+          if (!isHypotension) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  context.l10n.analysisConfidence,
+                  style: TextStyles.bodyMedium.copyWith(
+                    color: AppTheme.textSecondary(context),
+                    fontSize: 13,
+                  ),
                 ),
-              ),
-              Text(
-                '$confidencePercent%',
-                style: TextStyles.bodyMedium.copyWith(
-                  color: severityColor,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
+                Text(
+                  '${(confidence * 100).toStringAsFixed(0)}%',
+                  style: TextStyles.bodyMedium.copyWith(
+                    color: severityColor,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: result.confidence,
-              minHeight: 8,
-              backgroundColor: AppTheme.border(context),
-              color: severityColor,
+              ],
             ),
-          ),
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: confidence,
+                minHeight: 8,
+                backgroundColor: AppTheme.border(context),
+                color: severityColor,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -483,6 +460,11 @@ class _AnalysisPressurePageState extends State<AnalysisPressurePage>
   }
 
   Widget _buildProbabilitiesCard(BuildContext context, HypertensionResult result) {
+    // Если гипотензия – блок вероятностей не показываем
+    if (result.isHypotension) {
+      return const SizedBox.shrink();
+    }
+
     final labels = [
       context.l10n.analysisNormal,
       context.l10n.analysisPrehypertension,
@@ -579,8 +561,6 @@ class _AnalysisPressurePageState extends State<AnalysisPressurePage>
     );
   }
 
-
-
   Color _severityColor(int severity) {
     switch (severity) {
       case 0:
@@ -599,13 +579,13 @@ class _AnalysisPressurePageState extends State<AnalysisPressurePage>
   Color _severityBgColor(int severity) {
     switch (severity) {
       case 0:
-        return AppColors.success500.withValues(alpha: 0.1);
+        return AppColors.success500.withOpacity(0.1);
       case 1:
-        return AppColors.warning500.withValues(alpha: 0.1);
+        return AppColors.warning500.withOpacity(0.1);
       case 2:
-        return const Color(0xFFFF8C00).withValues(alpha: 0.1);
+        return const Color(0xFFFF8C00).withOpacity(0.1);
       case 3:
-        return AppColors.error500.withValues(alpha: 0.1);
+        return AppColors.error500.withOpacity(0.1);
       default:
         return AppTheme.border(context);
     }

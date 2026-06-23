@@ -14,70 +14,76 @@ class SexPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Column(
-        children: [
-          const Spacer(flex: 2),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height * 0.65,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 40),
 
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.wc_rounded,
-              size: 56,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 48),
-
-          Text(
-            context.l10n.onboardingSexTitle,
-            style: TextStyles.headlineLarge.copyWith(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-
-          Text(
-            context.l10n.onboardingSexSubtitle,
-            style: TextStyles.bodyMedium.copyWith(
-              color: Colors.white.withValues(alpha: 0.85),
-              fontSize: 17,
-              height: 1.4,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 48),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _SexOption(
-                icon: Icons.male_rounded,
-                label: context.l10n.sexMale,
-                isSelected: selectedSex == true,
-                onTap: () => onSexSelected(true),
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
               ),
-              const SizedBox(width: 24),
-              _SexOption(
-                icon: Icons.female_rounded,
-                label: context.l10n.sexFemale,
-                isSelected: selectedSex == false,
-                onTap: () => onSexSelected(false),
+              child: const Icon(
+                Icons.wc_rounded,
+                size: 56,
+                color: Colors.white,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 48),
 
-          const Spacer(flex: 3),
-        ],
+            Text(
+              context.l10n.onboardingSexTitle,
+              style: TextStyles.headlineLarge.copyWith(
+                color: Colors.white,
+                fontSize: 32,
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+
+            Text(
+              context.l10n.onboardingSexSubtitle,
+              style: TextStyles.bodyMedium.copyWith(
+                color: Colors.white.withValues(alpha: 0.85),
+                fontSize: 17,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 48),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _SexOption(
+                  icon: Icons.male_rounded,
+                  label: context.l10n.sexMale,
+                  isSelected: selectedSex == true,
+                  onTap: () => onSexSelected(true),
+                ),
+                const SizedBox(width: 24),
+                _SexOption(
+                  icon: Icons.female_rounded,
+                  label: context.l10n.sexFemale,
+                  isSelected: selectedSex == false,
+                  onTap: () => onSexSelected(false),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }

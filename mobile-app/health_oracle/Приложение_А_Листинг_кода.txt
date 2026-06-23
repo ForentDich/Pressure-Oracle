@@ -1,0 +1,1394 @@
+ПРИЛОЖЕНИЕ А
+Листинг кода мобильного приложения Health Oracle
+
+1) main.dart — точка входа, инициализация, навигация
+
+import 'package:flutter/material.dart';
+import 'l10n/app_localizations.dart';
+import 'features/home/presentation/pages/home_page.dart';
+import 'features/history/presentation/pages/history_page.dart';
+import 'features/schedule/presentation/pages/schedule_page.dart';
+import 'features/profile/presentation/pages/profile_page.dart';
+import 'features/onboarding/presentation/pages/onboarding_page.dart';
+import 'core/helpers/modal_helper.dart';
+import 'core/theme/colors.dart';
+import 'core/theme/app_theme.dart';
+import 'core/theme/text_styles.dart';
+import 'core/i18n/l10n_extension.dart';
+import 'data/services/profile_service.dart';
+import 'data/services/entry_service.dart';
+import 'data/services/reminder_service.dart';
+import 'data/services/notification_service.dart';
+import 'data/services/prediction_service.dart';
+import 'data/services/theme_service.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ProfileService.init();
+  await EntryService.init();
+  await ReminderService.init();
+  await NotificationService.init();
+  await ThemeService.init();
+  PredictionService.init();
+  runApp(const MyApp());
+}
+
+bool get needsOnboarding => !ProfileService.hasProfile();
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<AppThemeMode>(
+      valueListenable: ThemeService.instance,
+      builder: (context, _, __) {
+        return MaterialApp(
+          title: 'Health Oracle',
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: ThemeService.instance.themeMode,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: needsOnboarding
+              ? const OnboardingPage()
+              : MainNavigator(key: MainNavigator.navigatorKey),
+        );
+      },
+    );
+  }
+}
+
+class MainNavigator extends StatefulWidget {
+  const MainNavigator({super.key});
+
+  static final GlobalKey<_MainNavigatorState> navigatorKey =
+      GlobalKey<_MainNavigatorState>();
+
+  static void goToHistory() {
+    navigatorKey.currentState?.goToHistory();
+  }
+
+  @override
+  State<MainNavigator> createState() => _MainNavigatorState();
+}
+
+class _MainNavigatorState extends State<MainNavigator> {
+  int _currentIndex = 0;
+
+  final List<Widget> _pages = [
+    const HomePage(),
+    const HistoryPage(),
+    const SchedulePage(),
+    const ProfilePage(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
+  void goToHistory() {
+    setState(() {
+      _currentIndex = 1;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_currentIndex],
+      bottomNavigationBar: _buildBottomNavBar(),
+    );
+  }
+
+  Widget _buildBottomNavBar() {
+    return Container(
+      height: 70,
+      decoration: BoxDecoration(
+        color: AppTheme.surface(context),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(48),
+          topRight: Radius.circular(48),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildNavItem(
+                      Icons.home_outlined,
+                      Icons.home,
+                      context.l10n.home,
+                      0,
+                    ),
+                    _buildNavItem(
+                      Icons.history_outlined,
+                      Icons.history,
+                      context.l10n.history,
+                      1,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 54),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildNavItem(
+                      Icons.calendar_month_outlined,
+                      Icons.calendar_month,
+                      context.l10n.schedule,
+                      2,
+                    ),
+                    _buildNavItem(
+                      Icons.person_outlined,
+                      Icons.person,
+                      context.l10n.profile,
+                      3,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          _buildCenterButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem(
+    IconData icon,
+    IconData activeIcon,
+    String label,
+    int index,
+  ) {
+    final isSelected = _currentIndex == index;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final selectedColor = isDark ? Colors.white : AppColors.primary;
+    return GestureDetector(
+      onTap: () => _onItemTapped(index),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? activeIcon : icon,
+              color: isSelected ? selectedColor : AppTheme.textHint(context),
+              size: 28,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyles.labelSmall.copyWith(
+                fontSize: 10,
+                color: isSelected ? selectedColor : AppTheme.textHint(context),
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCenterButton() {
+    return GestureDetector(
+      onTap: () => ModalHelper.showBottomEntryMenu(context),
+      child: Container(
+        width: 48,
+        height: 48,
+        margin: const EdgeInsets.only(bottom: 4),
+        decoration: BoxDecoration(
+          gradient: AppColors.purpleGradient,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF8E2DE2).withOpacity(0.3),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: const Icon(Icons.add, color: Colors.white, size: 24),
+      ),
+    );
+  }
+}
+
+
+2) ProfileService — работа с профилем пользователя
+
+import 'package:hive_flutter/hive_flutter.dart';
+import '../models/user_profile.dart';
+
+class ProfileService {
+  static const String _boxName = 'user_profile';
+  static const String _profileKey = 'profile';
+
+  static Box<UserProfile>? _box;
+
+  static Future<void> init() async {
+    await Hive.initFlutter();
+
+    if (!Hive.isAdapterRegistered(0)) {
+      Hive.registerAdapter(UserProfileAdapter());
+    }
+
+    _box = await Hive.openBox<UserProfile>(_boxName);
+  }
+
+  static UserProfile? getProfile() {
+    return _box?.get(_profileKey);
+  }
+
+  static Future<void> saveProfile(UserProfile profile) async {
+    await _box?.put(_profileKey, profile);
+  }
+
+  static bool hasProfile() {
+    return _box?.containsKey(_profileKey) ?? false;
+  }
+
+  static Future<void> deleteProfile() async {
+    await _box?.delete(_profileKey);
+  }
+
+  static Stream<BoxEvent>? watchProfile() {
+    return _box?.watch(key: _profileKey);
+  }
+}
+
+
+3) EntryService — CRUD записей здоровья
+
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:uuid/uuid.dart';
+import '../models/health_entry.dart';
+
+class EntryService {
+  static const String _boxName = 'health_entries';
+  static Box<HealthEntry>? _box;
+  static const _uuid = Uuid();
+
+  static Future<void> init() async {
+    if (!Hive.isAdapterRegistered(1)) {
+      Hive.registerAdapter(EntryTypeAdapter());
+    }
+    if (!Hive.isAdapterRegistered(2)) {
+      Hive.registerAdapter(HealthEntryAdapter());
+    }
+
+    _box = await Hive.openBox<HealthEntry>(_boxName);
+  }
+
+  static List<HealthEntry> getAll() {
+    return _box?.values.toList() ?? [];
+  }
+
+  static List<HealthEntry> getByType(EntryType type) {
+    return _box?.values.where((e) => e.type == type).toList() ?? [];
+  }
+
+  static HealthEntry? getLastByType(EntryType type) {
+    final entries = getByType(type);
+    if (entries.isEmpty) return null;
+    entries.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return entries.first;
+  }
+
+  static List<HealthEntry> getByDateRange(DateTime start, DateTime end) {
+    return _box?.values
+            .where((e) => e.createdAt.isAfter(start) && e.createdAt.isBefore(end))
+            .toList() ??
+        [];
+  }
+
+  static List<HealthEntry> getByTypeAndDateRange(EntryType type, DateTime start, DateTime end) {
+    final entries = _box?.values
+            .where((e) => 
+                e.type == type && 
+                (e.createdAt.isAfter(start) || e.createdAt.isAtSameMomentAs(start)) && 
+                (e.createdAt.isBefore(end) || e.createdAt.isAtSameMomentAs(end)))
+            .toList() ?? [];
+    entries.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    return entries;
+  }
+
+  static Future<HealthEntry> add({
+    required EntryType type,
+    required double value,
+    double? secondaryValue,
+    String? note,
+    DateTime? createdAt,
+  }) async {
+    if (_box == null) {
+      throw Exception('EntryService not initialized. Call init() first.');
+    }
+    
+    final entry = HealthEntry(
+      id: _uuid.v4(),
+      type: type,
+      createdAt: createdAt ?? DateTime.now(),
+      value: value,
+      secondaryValue: secondaryValue,
+      note: note,
+    );
+
+    await _box!.put(entry.id, entry);
+    return entry;
+  }
+
+  static Future<void> update(HealthEntry entry) async {
+    await _box?.put(entry.id, entry);
+  }
+
+  static Future<void> delete(String id) async {
+    await _box?.delete(id);
+  }
+
+  static Future<void> deleteAll() async {
+    await _box?.clear();
+  }
+
+  static int get count => _box?.length ?? 0;
+
+  static Stream<BoxEvent>? watch() {
+    return _box?.watch();
+  }
+}
+
+
+4) ReminderService — CRUD напоминаний
+
+import 'package:hive_flutter/hive_flutter.dart';
+import '../models/reminder.dart';
+
+class ReminderService {
+  static const String _boxName = 'reminders';
+  static Box<Reminder>? _box;
+
+  static Future<void> init() async {
+    Hive.registerAdapter(ReminderAdapter());
+    Hive.registerAdapter(RepeatTypeAdapter());
+    Hive.registerAdapter(ReminderCategoryAdapter());
+    _box = await Hive.openBox<Reminder>(_boxName);
+  }
+
+  static Box<Reminder> get box {
+    if (_box == null) {
+      throw Exception('ReminderService not initialized. Call init() first.');
+    }
+    return _box!;
+  }
+
+  static Future<Reminder> add({
+    required String title,
+    String? description,
+    required int hour,
+    required int minute,
+    required RepeatType repeatType,
+    required ReminderCategory category,
+    bool isActive = true,
+  }) async {
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    final reminder = Reminder(
+      id: id,
+      title: title,
+      description: description,
+      hour: hour,
+      minute: minute,
+      repeatType: repeatType,
+      category: category,
+      isActive: isActive,
+      createdAt: DateTime.now(),
+    );
+    await box.put(id, reminder);
+    return reminder;
+  }
+
+  static Future<void> update(Reminder reminder) async {
+    await reminder.save();
+  }
+
+  static Future<void> delete(String id) async {
+    await box.delete(id);
+  }
+
+  static Future<void> toggleActive(String id) async {
+    final reminder = box.get(id);
+    if (reminder != null) {
+      reminder.isActive = !reminder.isActive;
+      await reminder.save();
+    }
+  }
+
+  static List<Reminder> getAll() {
+    return box.values.toList();
+  }
+
+  static List<Reminder> getActive() {
+    return box.values.where((r) => r.isActive).toList();
+  }
+
+  static List<Reminder> getInactive() {
+    return box.values.where((r) => !r.isActive).toList();
+  }
+
+  static Reminder? getById(String id) {
+    return box.get(id);
+  }
+
+  static int get activeCount => getActive().length;
+  
+  static int get totalCount => box.length;
+}
+
+
+5) NotificationService — уведомления
+
+import 'dart:ui';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz_data;
+import '../../l10n/app_localizations.dart';
+import '../models/reminder.dart';
+
+class NotificationService {
+  static final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
+  static bool _initialized = false;
+
+  static Future<void> init() async {
+    if (_initialized) return;
+
+    tz_data.initializeTimeZones();
+
+    const androidSettings =
+        AndroidInitializationSettings('ic_stat_notification');
+    const iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
+
+    const settings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+
+    await _plugin.initialize(settings);
+    _initialized = true;
+  }
+
+  static Future<bool> requestPermissions() async {
+    final android = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    final ios = _plugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
+
+    bool granted = false;
+
+    if (android != null) {
+      final result = await android.requestNotificationsPermission();
+      granted = result ?? false;
+    }
+
+    if (ios != null) {
+      final result = await ios.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      granted = result ?? false;
+    }
+
+    return granted;
+  }
+
+  static Future<bool> hasPermissions() async {
+    final android = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    
+    if (android != null) {
+      final result = await android.areNotificationsEnabled();
+      return result ?? false;
+    }
+    
+    return true;
+  }
+
+  static AppLocalizations get _l10n {
+    final locale = PlatformDispatcher.instance.locale;
+    return lookupAppLocalizations(locale);
+  }
+
+  static String _getCategoryName(ReminderCategory category) {
+    switch (category) {
+      case ReminderCategory.pressure:
+        return _l10n.notificationCategoryPressure;
+      case ReminderCategory.pulse:
+        return _l10n.notificationCategoryPulse;
+      case ReminderCategory.weight:
+        return _l10n.notificationCategoryWeight;
+      case ReminderCategory.sugar:
+        return _l10n.notificationCategorySugar;
+      case ReminderCategory.other:
+        return _l10n.notificationCategoryOther;
+    }
+  }
+
+  static Future<void> scheduleReminder(Reminder reminder) async {
+    if (!reminder.isActive) return;
+
+    final notificationId = reminder.id.hashCode;
+    final categoryName = _getCategoryName(reminder.category);
+    final categoryLabel = _l10n.notificationCategoryLabel;
+    final body = reminder.description?.isNotEmpty == true
+        ? '${reminder.description}\n$categoryLabel: $categoryName'
+        : '$categoryLabel: $categoryName';
+
+    final androidDetails = AndroidNotificationDetails(
+      'reminders',
+      'Напоминания',
+      channelDescription: 'Напоминания о измерениях',
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: 'ic_stat_notification',
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    final details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    final now = DateTime.now();
+    var scheduledDate = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      reminder.hour,
+      reminder.minute,
+    );
+
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    final tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
+
+    DateTimeComponents? matchComponents;
+    switch (reminder.repeatType) {
+      case RepeatType.daily:
+        matchComponents = DateTimeComponents.time;
+        break;
+      case RepeatType.weekly:
+        matchComponents = DateTimeComponents.dayOfWeekAndTime;
+        break;
+      case RepeatType.monthly:
+        matchComponents = DateTimeComponents.dayOfMonthAndTime;
+        break;
+      case RepeatType.weekdays:
+        matchComponents = DateTimeComponents.dayOfWeekAndTime;
+        break;
+    }
+
+    await _plugin.zonedSchedule(
+      notificationId,
+      reminder.title,
+      body,
+      tzScheduledDate,
+      details,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: matchComponents,
+    );
+  }
+
+  static Future<void> cancelReminder(Reminder reminder) async {
+    final notificationId = reminder.id.hashCode;
+    await _plugin.cancel(notificationId);
+  }
+
+  static Future<void> cancelAll() async {
+    await _plugin.cancelAll();
+  }
+
+  static Future<void> rescheduleAllReminders(List<Reminder> reminders) async {
+    await cancelAll();
+    for (final reminder in reminders) {
+      if (reminder.isActive) {
+        await scheduleReminder(reminder);
+      }
+    }
+  }
+}
+
+
+6) PredictionService — ML предсказания
+
+import 'random_forest_model.dart';
+import 'health_categorizer.dart';
+import 'entry_service.dart';
+import 'profile_service.dart';
+import '../models/health_entry.dart';
+import 'hypertension_svc_model.dart';
+
+class HypertensionResult {
+  final int classIndex;
+  final String label;
+  final List<double> probabilities;
+  final String sbpCategory;
+  final String dbpCategory;
+  final String pulseCategory;
+  final String bmiCategory;
+  final double bmi;
+
+  final double? inputSbp;
+  final double? inputDbp;
+  final double? inputPulse;
+  final bool? inputIsLatest;
+  final DateTime? inputPressureAt;
+  final DateTime? inputPulseAt;
+
+  HypertensionResult({
+    required this.classIndex,
+    required this.label,
+    required this.probabilities,
+    required this.sbpCategory,
+    required this.dbpCategory,
+    required this.pulseCategory,
+    required this.bmiCategory,
+    required this.bmi,
+    this.inputSbp,
+    this.inputDbp,
+    this.inputPulse,
+    this.inputIsLatest,
+    this.inputPressureAt,
+    this.inputPulseAt,
+  });
+
+  int get severity => classIndex;
+
+  double get confidence =>
+      probabilities.isNotEmpty ? probabilities[classIndex] : 0;
+}
+
+class KidneyResult {
+  final int classIndex;
+  final String label;
+  final List<double> probabilities;
+
+  KidneyResult({
+    required this.classIndex,
+    required this.label,
+    required this.probabilities,
+  });
+
+  bool get isRisk => classIndex == 1;
+  double get riskProbability =>
+      probabilities.length > 1 ? probabilities[1] : 0;
+}
+
+class PredictionService {
+  static RandomForestModel? _kidneyModel;
+  static bool _initialized = false;
+
+  static Future<void> init() async {
+    if (_initialized) return;
+
+    try {
+      _kidneyModel = await RandomForestModel.load(
+        'assets/models/kidney_model.json',
+      );
+    } catch (e) {
+    }
+
+    _initialized = true;
+  }
+
+  static bool get isHypertensionModelReady => true;
+  static bool get isKidneyModelReady => _kidneyModel != null;
+
+  static ({double sbp, double dbp}) _extractPressurePair(HealthEntry e) {
+    final a = e.value;
+    final b = e.secondaryValue;
+
+    final x = b ?? a;
+
+    final sbp = a >= x ? a : x;
+    final dbp = a >= x ? x : a;
+
+    return (sbp: sbp, dbp: dbp);
+  }
+
+  static HealthEntry? _latestByCreatedAt(Iterable<HealthEntry> entries) {
+    final list = entries.toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return list.isEmpty ? null : list.first;
+  }
+
+  static HypertensionResult? predictHypertension({bool isLatest = false}) {
+    if (!isHypertensionModelReady) return null;
+
+    final profile = ProfileService.getProfile();
+    if (profile == null) return null;
+    if (profile.height == null || profile.age == null) return null;
+
+    final allPressure = EntryService.getByType(EntryType.pressure);
+    final allPulse = EntryService.getByType(EntryType.pulse);
+
+    HealthEntry? pressureSource;
+    HealthEntry? pulseSource;
+
+    if (isLatest) {
+      pressureSource = _latestByCreatedAt(allPressure);
+      pulseSource = _latestByCreatedAt(allPulse);
+      if (pressureSource == null || pulseSource == null) return null;
+
+      final pair = _extractPressurePair(pressureSource);
+      final sbp = pair.sbp;
+      final dbp = pair.dbp;
+      final pulse = pulseSource.value;
+
+      final allWeight = EntryService.getByType(EntryType.weight).toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      final weight = allWeight.isNotEmpty ? allWeight.first.value : 70.0;
+
+      final height = profile.height!;
+      final age = profile.age!;
+      final sex = profile.sex ?? true;
+      final bmi = HealthCategorizer.calculateBMI(height, weight);
+
+      final catSBP = HealthCategorizer.categorizeSBP(sbp);
+      final catDBP = HealthCategorizer.categorizeDBP(dbp);
+      final catPulse = HealthCategorizer.categorizePulse(pulse);
+      final catBMI = HealthCategorizer.categorizeBMI(bmi);
+      final sexEncoded = HealthCategorizer.encodeSex(sex);
+
+      final features = [
+        sexEncoded.toDouble(),
+        age.toDouble(),
+        sbp,
+        dbp,
+        pulse,
+        bmi,
+      ];
+
+      final classIdx = HypertensionSvcModel.predict(features);
+      final probs = HypertensionSvcModel.predictProbabilities(features);
+
+      return HypertensionResult(
+        classIndex: classIdx,
+        label: HealthCategorizer.hypertensionLabels[classIdx],
+        probabilities: probs,
+        sbpCategory: HealthCategorizer.sbpLabels[catSBP],
+        dbpCategory: HealthCategorizer.dbpLabels[catDBP],
+        pulseCategory: HealthCategorizer.pulseLabels[catPulse],
+        bmiCategory: HealthCategorizer.bmiLabels[catBMI],
+        bmi: bmi,
+        inputSbp: sbp,
+        inputDbp: dbp,
+        inputPulse: pulse,
+        inputIsLatest: true,
+        inputPressureAt: pressureSource.createdAt,
+        inputPulseAt: pulseSource.createdAt,
+      );
+    }
+
+    final now = DateTime.now();
+    final weekAgo = now.subtract(const Duration(days: 7));
+
+    final pressureWeek = allPressure.where((e) => e.createdAt.isAfter(weekAgo)).toList();
+    final pulseWeek = allPulse.where((e) => e.createdAt.isAfter(weekAgo)).toList();
+
+    final pressureList = pressureWeek.isNotEmpty ? pressureWeek : allPressure.toList();
+    final pulseList = pulseWeek.isNotEmpty ? pulseWeek : allPulse.toList();
+
+    if (pressureList.isEmpty || pulseList.isEmpty) return null;
+
+    final pairs = pressureList.map(_extractPressurePair).toList();
+    final sbp = pairs.map((p) => p.sbp).reduce((a, b) => a + b) / pairs.length;
+    final dbp = pairs.map((p) => p.dbp).reduce((a, b) => a + b) / pairs.length;
+    final pulse = pulseList.map((e) => e.value).reduce((a, b) => a + b) / pulseList.length;
+
+    final allWeight = EntryService.getByType(EntryType.weight).toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final weight = allWeight.isNotEmpty ? allWeight.first.value : 70.0;
+
+    final height = profile.height!;
+    final age = profile.age!;
+    final sex = profile.sex ?? true;
+    final bmi = HealthCategorizer.calculateBMI(height, weight);
+
+    final catSBP = HealthCategorizer.categorizeSBP(sbp);
+    final catDBP = HealthCategorizer.categorizeDBP(dbp);
+    final catPulse = HealthCategorizer.categorizePulse(pulse);
+    final catBMI = HealthCategorizer.categorizeBMI(bmi);
+    final sexEncoded = HealthCategorizer.encodeSex(sex);
+
+    final features = [
+      sexEncoded.toDouble(),
+      age.toDouble(),
+      sbp,
+      dbp,
+      pulse,
+      bmi,
+    ];
+
+    final classIdx = HypertensionSvcModel.predict(features);
+    final probs = HypertensionSvcModel.predictProbabilities(features);
+
+    return HypertensionResult(
+      classIndex: classIdx,
+      label: HealthCategorizer.hypertensionLabels[classIdx],
+      probabilities: probs,
+      sbpCategory: HealthCategorizer.sbpLabels[catSBP],
+      dbpCategory: HealthCategorizer.dbpLabels[catDBP],
+      pulseCategory: HealthCategorizer.pulseLabels[catPulse],
+      bmiCategory: HealthCategorizer.bmiLabels[catBMI],
+      bmi: bmi,
+      inputSbp: sbp,
+      inputDbp: dbp,
+      inputPulse: pulse,
+      inputIsLatest: false,
+      inputPressureAt: _latestByCreatedAt(pressureList)?.createdAt,
+      inputPulseAt: _latestByCreatedAt(pulseList)?.createdAt,
+    );
+  }
+
+  static HypertensionResult? predictHypertensionManual({
+    required double systolic,
+    required double diastolic,
+    required double pulse,
+    required double heightCm,
+    required double weightKg,
+    required int age,
+    required bool isMale,
+  }) {
+    if (!isHypertensionModelReady) return null;
+
+    final bmi = HealthCategorizer.calculateBMI(heightCm, weightKg);
+
+    final features = [
+      HealthCategorizer.encodeSex(isMale).toDouble(),
+      age.toDouble(),
+      systolic,
+      diastolic,
+      pulse,
+      bmi,
+    ];
+
+    final classIdx = HypertensionSvcModel.predict(features);
+    final probs = HypertensionSvcModel.predictProbabilities(features);
+
+    return HypertensionResult(
+      classIndex: classIdx,
+      label: HealthCategorizer.hypertensionLabels[classIdx],
+      probabilities: probs,
+      sbpCategory: HealthCategorizer.sbpLabels[
+          HealthCategorizer.categorizeSBP(systolic)],
+      dbpCategory: HealthCategorizer.dbpLabels[
+          HealthCategorizer.categorizeDBP(diastolic)],
+      pulseCategory: HealthCategorizer.pulseLabels[
+          HealthCategorizer.categorizePulse(pulse)],
+      bmiCategory: HealthCategorizer.bmiLabels[
+          HealthCategorizer.categorizeBMI(bmi)],
+      bmi: bmi,
+    );
+  }
+
+  static KidneyResult? predictKidney({
+    required int bpAbnormality,
+    required double hemoglobin,
+    required double geneticCoef,
+    required double age,
+    required double bmi,
+    required int sex,
+    required int smoking,
+    required double physicalActivity,
+    required double saltIntake,
+    required double alcoholPerDay,
+    required int stressLevel,
+  }) {
+    if (_kidneyModel == null) return null;
+
+    final features = HealthCategorizer.buildKidneyFeatures(
+      bpAbnormality: bpAbnormality,
+      hemoglobin: hemoglobin,
+      geneticCoef: geneticCoef,
+      age: age,
+      bmi: bmi,
+      sex: sex,
+      smoking: smoking,
+      physicalActivity: physicalActivity,
+      saltIntake: saltIntake,
+      alcoholPerDay: alcoholPerDay,
+      stressLevel: stressLevel,
+    );
+
+    final classIdx = _kidneyModel!.predict(features);
+    final probs = _kidneyModel!.predictProbabilities(features);
+
+    return KidneyResult(
+      classIndex: classIdx,
+      label: classIdx == 1 ? 'Повышенный риск' : 'Низкий риск',
+      probabilities: probs,
+    );
+  }
+}
+
+
+7) HealthCategorizer — категоризация показателей
+
+class HealthCategorizer {
+  static int categorizeSBP(double sbp) {
+    if (sbp < 100) return 4;
+    if (sbp <= 119) return 3;
+    if (sbp <= 129) return 2;
+    if (sbp <= 139) return 0;
+    if (sbp <= 159) return 6;
+    if (sbp <= 179) return 1;
+    return 5;
+  }
+
+  static int categorizeDBP(double dbp) {
+    if (dbp < 60) return 4;
+    if (dbp <= 79) return 3;
+    if (dbp <= 84) return 2;
+    if (dbp <= 89) return 0;
+    if (dbp <= 99) return 5;
+    return 1;
+  }
+
+  static int categorizePulse(double pulse) {
+    if (pulse < 60) return 2;
+    if (pulse <= 70) return 1;
+    return 0;
+  }
+
+  static int categorizeBMI(double bmi) {
+    if (bmi < 16) return 4;
+    if (bmi < 18.5) return 1;
+    if (bmi < 25) return 2;
+    if (bmi < 30) return 5;
+    if (bmi < 35) return 0;
+    return 3;
+  }
+
+  static double calculateBMI(double heightCm, double weightKg) {
+    final heightM = heightCm / 100.0;
+    return weightKg / (heightM * heightM);
+  }
+
+  static int encodeSex(bool isMale) => isMale ? 0 : 1;
+
+  static List<double> buildKidneyFeatures({
+    required int bpAbnormality,
+    required double hemoglobin,
+    required double geneticCoef,
+    required double age,
+    required double bmi,
+    required int sex,
+    required int smoking,
+    required double physicalActivity,
+    required double saltIntake,
+    required double alcoholPerDay,
+    required int stressLevel,
+  }) {
+    return [
+      bpAbnormality.toDouble(),
+      hemoglobin,
+      geneticCoef,
+      age,
+      bmi,
+      sex.toDouble(),
+      smoking.toDouble(),
+      physicalActivity,
+      saltIntake,
+      alcoholPerDay,
+      stressLevel.toDouble(),
+    ];
+  }
+
+  static const List<String> sbpLabels = [
+    'Высокое нормальное',
+    'Гипертония ср. тяж.',
+    'Нормальное',
+    'Оптимальное',
+    'Пониженное',
+    'Тяжёлая гипертония',
+    'Умеренная гипертония',
+  ];
+
+  static const List<String> dbpLabels = [
+    'Высокое нормальное',
+    'Гипертония ср. тяж.',
+    'Нормальное',
+    'Оптимальное',
+    'Пониженное',
+    'Умеренная гипертония',
+  ];
+
+  static const List<String> pulseLabels = [
+    'Высокий',
+    'Нормальный',
+    'Пониженный',
+  ];
+
+  static const List<String> bmiLabels = [
+    'Высокий',
+    'Низкий',
+    'Обычный',
+    'Очень высокий',
+    'Очень низкий',
+    'Повышенный',
+  ];
+
+  static const List<String> hypertensionLabels = [
+    'Норма',
+    'Предгипертензия',
+    'Гипертония 1 ст.',
+    'Гипертония 2 ст.',
+  ];
+}
+
+
+8) RandomForestModel — загрузка и инференс RF
+
+import 'dart:convert';
+import 'package:flutter/services.dart';
+
+class RandomForestModel {
+  final String id;
+  final int nClasses;
+  final int nFeatures;
+  final List<String> featureNames;
+  final List<String> classNames;
+  final List<_DecisionTree> _trees;
+  final List<double>? _imputerStats;
+  final List<int>? _indicatorFeatures;
+
+  RandomForestModel._({
+    required this.id,
+    required this.nClasses,
+    required this.nFeatures,
+    required this.featureNames,
+    required this.classNames,
+    required List<_DecisionTree> trees,
+    List<double>? imputerStats,
+    List<int>? indicatorFeatures,
+  })  : _trees = trees,
+        _imputerStats = imputerStats,
+        _indicatorFeatures = indicatorFeatures;
+
+  static Future<RandomForestModel> load(String assetPath) async {
+    final raw = await rootBundle.loadString(assetPath);
+    final json = jsonDecode(raw) as Map<String, dynamic>;
+
+    final treesJson = json['trees'] as List;
+    final trees = treesJson.map((t) => _DecisionTree.fromJson(t)).toList();
+
+    List<double>? impStats;
+    List<int>? indFeats;
+    if (json.containsKey('imputer')) {
+      final imp = json['imputer'] as Map<String, dynamic>;
+      impStats = (imp['statistics'] as List).map((e) => (e as num).toDouble()).toList();
+      if (imp.containsKey('indicator_features')) {
+        indFeats = (imp['indicator_features'] as List).map((e) => (e as num).toInt()).toList();
+      }
+    }
+
+    return RandomForestModel._(
+      id: json['id'] as String,
+      nClasses: json['n_classes'] as int,
+      nFeatures: json['n_features'] as int,
+      featureNames: (json['feature_names'] as List).cast<String>(),
+      classNames: (json['class_names'] as List).cast<String>(),
+      trees: trees,
+      imputerStats: impStats,
+      indicatorFeatures: indFeats,
+    );
+  }
+
+  int predict(List<double> features) {
+    final probs = predictProbabilities(features);
+    if (probs.isEmpty) return 0;
+
+    var bestIdx = 0;
+    var best = probs[0];
+    for (var i = 1; i < probs.length; i++) {
+      if (probs[i] > best) {
+        best = probs[i];
+        bestIdx = i;
+      }
+    }
+    return bestIdx;
+  }
+
+  List<double> predictProbabilities(List<double> features) {
+    final processed = _preprocess(features);
+    final votes = List<double>.filled(nClasses, 0);
+
+    for (final tree in _trees) {
+      final p = tree.predictProba(processed);
+      for (int i = 0; i < nClasses; i++) {
+        votes[i] += p[i];
+      }
+    }
+
+    if (_trees.isNotEmpty) {
+      for (int i = 0; i < votes.length; i++) {
+        votes[i] /= _trees.length;
+      }
+    }
+    return votes;
+  }
+
+  List<double> _preprocess(List<double> features) {
+    if (_imputerStats == null) return features;
+
+    final result = List<double>.from(features);
+
+    for (int i = 0; i < result.length && i < _imputerStats.length; i++) {
+      if (result[i].isNaN) {
+        result[i] = _imputerStats[i];
+      }
+    }
+
+    if (_indicatorFeatures != null) {
+      for (final idx in _indicatorFeatures) {
+        result.add(idx < features.length && features[idx].isNaN ? 1.0 : 0.0);
+      }
+    }
+
+    return result;
+  }
+}
+
+class _DecisionTree {
+  final List<int> feature;
+  final List<double> threshold;
+  final List<int> childrenLeft;
+  final List<int> childrenRight;
+  final List<List<double>> value;
+
+  _DecisionTree({
+    required this.feature,
+    required this.threshold,
+    required this.childrenLeft,
+    required this.childrenRight,
+    required this.value,
+  });
+
+  factory _DecisionTree.fromJson(Map<String, dynamic> json) {
+    return _DecisionTree(
+      feature: (json['feature'] as List).cast<int>(),
+      threshold: (json['threshold'] as List).map((e) => (e as num).toDouble()).toList(),
+      childrenLeft: (json['children_left'] as List).cast<int>(),
+      childrenRight: (json['children_right'] as List).cast<int>(),
+      value: (json['value'] as List).map((row) {
+        return (row as List).map((v) => (v as num).toDouble()).toList();
+      }).toList(),
+    );
+  }
+
+  List<double> predictProba(List<double> features) {
+    int nodeId = 0;
+    while (childrenLeft[nodeId] != -1) {
+      final f = feature[nodeId];
+      if (f < 0 || f >= features.length) break;
+      if (features[f] <= threshold[nodeId]) {
+        nodeId = childrenLeft[nodeId];
+      } else {
+        nodeId = childrenRight[nodeId];
+      }
+    }
+
+    final counts = value[nodeId];
+    final total = counts.fold<double>(0, (a, b) => a + b);
+    if (total <= 0) return List<double>.filled(counts.length, 0);
+
+    return counts.map((c) => c / total).toList();
+  }
+}
+
+9) HypertensionSvcModel — модель SVC для классификации гипертонии
+
+import 'dart:math';
+List<double> score(List<double> input) {
+    double var0;
+    var0 = (pow(0.00009295334872448127 * (0.0 * input[0] + 51.0 * input[1] + 123.0 * input[2] + 78.0 * input[3] + 72.0 * input[4] + 22.491349480968857 * input[5]) + 0.0, 3.0)).toDouble();
+    double var1;
+    var1 = (pow(0.00009295334872448127 * (1.0 * input[0] + 76.0 * input[1] + 136.0 * input[2] + 71.0 * input[3] + 72.0 * input[4] + 24.835763499439192 * input[5]) + 0.0, 3.0)).toDouble();
+    double var2;
+    var2 = (pow(0.00009295334872448127 * (1.0 * input[0] + 38.0 * input[1] + 122.0 * input[2] + 69.0 * input[3] + 60.0 * input[4] + 29.136316337148806 * input[5]) + 0.0, 3.0)).toDouble();
+    double var3;
+    var3 = (pow(0.00009295334872448127 * (0.0 * input[0] + 54.0 * input[1] + 137.0 * input[2] + 80.0 * input[3] + 81.0 * input[4] + 20.761245674740483 * input[5]) + 0.0, 3.0)).toDouble();
+    double var4;
+    var4 = (pow(0.00009295334872448127 * (1.0 * input[0] + 85.0 * input[1] + 125.0 * input[2] + 62.0 * input[3] + 75.0 * input[4] + 21.907582457706194 * input[5]) + 0.0, 3.0)).toDouble();
+    double var5;
+    var5 = (pow(0.00009295334872448127 * (1.0 * input[0] + 54.0 * input[1] + 137.0 * input[2] + 84.0 * input[3] + 62.0 * input[4] + 25.969529085872576 * input[5]) + 0.0, 3.0)).toDouble();
+    double var6;
+    var6 = (pow(0.00009295334872448127 * (0.0 * input[0] + 60.0 * input[1] + 120.0 * input[2] + 63.0 * input[3] + 86.0 * input[4] + 21.0828132906055 * input[5]) + 0.0, 3.0)).toDouble();
+    double var7;
+    var7 = (pow(0.00009295334872448127 * (1.0 * input[0] + 47.0 * input[1] + 137.0 * input[2] + 80.0 * input[3] + 78.0 * input[4] + 22.666666666666668 * input[5]) + 0.0, 3.0)).toDouble();
+    double var8;
+    var8 = (pow(0.00009295334872448127 * (0.0 * input[0] + 59.0 * input[1] + 135.0 * input[2] + 84.0 * input[3] + 80.0 * input[4] + 23.23345617689473 * input[5]) + 0.0, 3.0)).toDouble();
+    double var9;
+    var9 = (pow(0.00009295334872448127 * (0.0 * input[0] + 56.0 * input[1] + 124.0 * input[2] + 75.0 * input[3] + 93.0 * input[4] + 19.721036967980208 * input[5]) + 0.0, 3.0)).toDouble();
+    double var10;
+    var10 = (pow(0.00009295334872448127 * (1.0 * input[0] + 59.0 * input[1] + 139.0 * input[2] + 85.0 * input[3] + 80.0 * input[4] + 21.051708258409718 * input[5]) + 0.0, 3.0)).toDouble();
+    double var11;
+    var11 = (pow(0.00009295334872448127 * (1.0 * input[0] + 56.0 * input[1] + 123.0 * input[2] + 75.0 * input[3] + 63.0 * input[4] + 21.631148854350265 * input[5]) + 0.0, 3.0)).toDouble();
+    double var12;
+    var12 = (pow(0.00009295334872448127 * (0.0 * input[0] + 59.0 * input[1] + 133.0 * input[2] + 77.0 * input[3] + 66.0 * input[4] + 27.358845456721724 * input[5]) + 0.0, 3.0)).toDouble();
+    double var13;
+    var13 = (pow(0.00009295334872448127 * (1.0 * input[0] + 77.0 * input[1] + 120.0 * input[2] + 69.0 * input[3] + 76.0 * input[4] + 25.63116749967961 * input[5]) + 0.0, 3.0)).toDouble();
+    double var14;
+    var14 = (pow(0.00009295334872448127 * (1.0 * input[0] + 64.0 * input[1] + 124.0 * input[2] + 70.0 * input[3] + 77.0 * input[4] + 20.88888888888889 * input[5]) + 0.0, 3.0)).toDouble();
+    double var15;
+    var15 = (pow(0.00009295334872448127 * (1.0 * input[0] + 63.0 * input[1] + 120.0 * input[2] + 60.0 * input[3] + 76.0 * input[4] + 19.223375624759708 * input[5]) + 0.0, 3.0)).toDouble();
+    double var16;
+    var16 = (pow(0.00009295334872448127 * (0.0 * input[0] + 64.0 * input[1] + 126.0 * input[2] + 65.0 * input[3] + 66.0 * input[4] + 20.703125 * input[5]) + 0.0, 3.0)).toDouble();
+    double var17;
+    var17 = (pow(0.00009295334872448127 * (1.0 * input[0] + 67.0 * input[1] + 135.0 * input[2] + 75.0 * input[3] + 72.0 * input[4] + 22.892819979188346 * input[5]) + 0.0, 3.0)).toDouble();
+    double var18;
+    var18 = (pow(0.00009295334872448127 * (0.0 * input[0] + 73.0 * input[1] + 139.0 * input[2] + 71.0 * input[3] + 72.0 * input[4] + 22.65625 * input[5]) + 0.0, 3.0)).toDouble();
+    double var19;
+    var19 = (pow(0.00009295334872448127 * (0.0 * input[0] + 48.0 * input[1] + 122.0 * input[2] + 77.0 * input[3] + 76.0 * input[4] + 19.37919743392696 * input[5]) + 0.0, 3.0)).toDouble();
+    double var20;
+    var20 = (pow(0.00009295334872448127 * (1.0 * input[0] + 65.0 * input[1] + 139.0 * input[2] + 69.0 * input[3] + 63.0 * input[4] + 19.959355494266223 * input[5]) + 0.0, 3.0)).toDouble();
+    double var21;
+    var21 = (pow(0.00009295334872448127 * (0.0 * input[0] + 42.0 * input[1] + 121.0 * input[2] + 73.0 * input[3] + 66.0 * input[4] + 35.33859303090072 * input[5]) + 0.0, 3.0)).toDouble();
+    double var22;
+    var22 = (pow(0.00009295334872448127 * (1.0 * input[0] + 78.0 * input[1] + 138.0 * input[2] + 66.0 * input[3] + 58.0 * input[4] + 24.03460983816696 * input[5]) + 0.0, 3.0)).toDouble();
+    double var23;
+    var23 = (pow(0.00009295334872448127 * (0.0 * input[0] + 81.0 * input[1] + 137.0 * input[2] + 74.0 * input[3] + 61.0 * input[4] + 20.549886621315192 * input[5]) + 0.0, 3.0)).toDouble();
+    double var24;
+    var24 = (pow(0.00009295334872448127 * (1.0 * input[0] + 84.0 * input[1] + 127.0 * input[2] + 65.0 * input[3] + 60.0 * input[4] + 19.04432132963989 * input[5]) + 0.0, 3.0)).toDouble();
+    double var25;
+    var25 = (pow(0.00009295334872448127 * (0.0 * input[0] + 73.0 * input[1] + 123.0 * input[2] + 68.0 * input[3] + 67.0 * input[4] + 24.21875 * input[5]) + 0.0, 3.0)).toDouble();
+    double var26;
+    var26 = (pow(0.00009295334872448127 * (0.0 * input[0] + 71.0 * input[1] + 136.0 * input[2] + 68.0 * input[3] + 68.0 * input[4] + 19.53125 * input[5]) + 0.0, 3.0)).toDouble();
+    double var27;
+    var27 = (pow(0.00009295334872448127 * (1.0 * input[0] + 58.0 * input[1] + 126.0 * input[2] + 63.0 * input[3] + 64.0 * input[4] + 24.444444444444443 * input[5]) + 0.0, 3.0)).toDouble();
+    double var28;
+    var28 = (pow(0.00009295334872448127 * (1.0 * input[0] + 48.0 * input[1] + 124.0 * input[2] + 62.0 * input[3] + 70.0 * input[4] + 26.5625 * input[5]) + 0.0, 3.0)).toDouble();
+    double var29;
+    var29 = (pow(0.00009295334872448127 * (0.0 * input[0] + 53.0 * input[1] + 138.0 * input[2] + 93.0 * input[3] + 65.0 * input[4] + 24.489795918367346 * input[5]) + 0.0, 3.0)).toDouble();
+    double var30;
+    var30 = (pow(0.00009295334872448127 * (1.0 * input[0] + 46.0 * input[1] + 123.0 * input[2] + 73.0 * input[3] + 73.0 * input[4] + 27.05515088449532 * input[5]) + 0.0, 3.0)).toDouble();
+    double var31;
+    var31 = (pow(0.00009295334872448127 * (0.0 * input[0] + 58.0 * input[1] + 137.0 * input[2] + 65.0 * input[3] + 72.0 * input[4] + 25.390625 * input[5]) + 0.0, 3.0)).toDouble();
+    double var32;
+    var32 = (pow(0.00009295334872448127 * (0.0 * input[0] + 30.0 * input[1] + 121.0 * input[2] + 78.0 * input[3] + 60.0 * input[4] + 26.81174510620575 * input[5]) + 0.0, 3.0)).toDouble();
+    double var33;
+    var33 = (pow(0.00009295334872448127 * (0.0 * input[0] + 72.0 * input[1] + 133.0 * input[2] + 73.0 * input[3] + 66.0 * input[4] + 20.44913741820345 * input[5]) + 0.0, 3.0)).toDouble();
+    double var34;
+    var34 = (pow(0.00009295334872448127 * (1.0 * input[0] + 40.0 * input[1] + 120.0 * input[2] + 63.0 * input[3] + 71.0 * input[4] + 22.432302515622496 * input[5]) + 0.0, 3.0)).toDouble();
+    double var35;
+    var35 = (pow(0.00009295334872448127 * (1.0 * input[0] + 28.0 * input[1] + 122.0 * input[2] + 70.0 * input[3] + 88.0 * input[4] + 22.65625 * input[5]) + 0.0, 3.0)).toDouble();
+    double var36;
+    var36 = (pow(0.00009295334872448127 * (1.0 * input[0] + 80.0 * input[1] + 123.0 * input[2] + 56.0 * input[3] + 58.0 * input[4] + 24.654832347140037 * input[5]) + 0.0, 3.0)).toDouble();
+    double var37;
+    var37 = (pow(0.00009295334872448127 * (0.0 * input[0] + 77.0 * input[1] + 138.0 * input[2] + 69.0 * input[3] + 76.0 * input[4] + 21.10726643598616 * input[5]) + 0.0, 3.0)).toDouble();
+    double var38;
+    var38 = (pow(0.00009295334872448127 * (0.0 * input[0] + 25.0 * input[1] + 120.0 * input[2] + 69.0 * input[3] + 72.0 * input[4] + 17.75568181818182 * input[5]) + 0.0, 3.0)).toDouble();
+    double var39;
+    var39 = (pow(0.00009295334872448127 * (1.0 * input[0] + 86.0 * input[1] + 130.0 * input[2] + 66.0 * input[3] + 69.0 * input[4] + 27.00513097488523 * input[5]) + 0.0, 3.0)).toDouble();
+    double var40;
+    var40 = (pow(0.00009295334872448127 * (1.0 * input[0] + 74.0 * input[1] + 139.0 * input[2] + 75.0 * input[3] + 81.0 * input[4] + 18.730489073881376 * input[5]) + 0.0, 3.0)).toDouble();
+    double var41;
+    var41 = (pow(0.00009295334872448127 * (0.0 * input[0] + 45.0 * input[1] + 117.0 * input[2] + 74.0 * input[3] + 59.0 * input[4] + 24.447278911564627 * input[5]) + 0.0, 3.0)).toDouble();
+    double var42;
+    var42 = (pow(0.00009295334872448127 * (0.0 * input[0] + 63.0 * input[1] + 115.0 * input[2] + 62.0 * input[3] + 82.0 * input[4] + 20.2020202020202 * input[5]) + 0.0, 3.0)).toDouble();
+    double var43;
+    var43 = (pow(0.00009295334872448127 * (1.0 * input[0] + 46.0 * input[1] + 114.0 * input[2] + 65.0 * input[3] + 79.0 * input[4] + 21.333333333333332 * input[5]) + 0.0, 3.0)).toDouble();
+    double var44;
+    var44 = (pow(0.00009295334872448127 * (0.0 * input[0] + 62.0 * input[1] + 117.0 * input[2] + 74.0 * input[3] + 79.0 * input[4] + 23.875114784205692 * input[5]) + 0.0, 3.0)).toDouble();
+    double var45;
+    var45 = (pow(0.00009295334872448127 * (1.0 * input[0] + 53.0 * input[1] + 116.0 * input[2] + 58.0 * input[3] + 71.0 * input[4] + 25.0 * input[5]) + 0.0, 3.0)).toDouble();
+    double var46;
+    var46 = (pow(0.00009295334872448127 * (1.0 * input[0] + 51.0 * input[1] + 118.0 * input[2] + 71.0 * input[3] + 84.0 * input[4] + 29.296875 * input[5]) + 0.0, 3.0)).toDouble();
+    double var47;
+    var47 = (pow(0.00009295334872448127 * (0.0 * input[0] + 52.0 * input[1] + 119.0 * input[2] + 62.0 * input[3] + 94.0 * input[4] + 19.486961451247165 * input[5]) + 0.0, 3.0)).toDouble();
+    double var48;
+    var48 = (pow(0.00009295334872448127 * (0.0 * input[0] + 58.0 * input[1] + 116.0 * input[2] + 60.0 * input[3] + 78.0 * input[4] + 15.943877551020408 * input[5]) + 0.0, 3.0)).toDouble();
+    double var49;
+    var49 = (pow(0.00009295334872448127 * (0.0 * input[0] + 74.0 * input[1] + 114.0 * input[2] + 75.0 * input[3] + 106.0 * input[4] + 22.892819979188346 * input[5]) + 0.0, 3.0)).toDouble();
+    double var50;
+    var50 = (pow(0.00009295334872448127 * (0.0 * input[0] + 62.0 * input[1] + 116.0 * input[2] + 66.0 * input[3] + 70.0 * input[4] + 20.761245674740483 * input[5]) + 0.0, 3.0)).toDouble();
+    double var51;
+    var51 = (pow(0.00009295334872448127 * (1.0 * input[0] + 85.0 * input[1] + 118.0 * input[2] + 68.0 * input[3] + 72.0 * input[4] + 20.576131687242796 * input[5]) + 0.0, 3.0)).toDouble();
+    double var52;
+    var52 = (pow(0.00009295334872448127 * (1.0 * input[0] + 41.0 * input[1] + 113.0 * input[2] + 67.0 * input[3] + 67.0 * input[4] + 19.47714681440443 * input[5]) + 0.0, 3.0)).toDouble();
+    double var53;
+    var53 = (pow(0.00009295334872448127 * (1.0 * input[0] + 54.0 * input[1] + 115.0 * input[2] + 71.0 * input[3] + 70.0 * input[4] + 35.84078259402935 * input[5]) + 0.0, 3.0)).toDouble();
+    double var54;
+    var54 = (pow(0.00009295334872448127 * (0.0 * input[0] + 26.0 * input[1] + 115.0 * input[2] + 75.0 * input[3] + 64.0 * input[4] + 18.93700290367378 * input[5]) + 0.0, 3.0)).toDouble();
+    double var55;
+    var55 = (pow(0.00009295334872448127 * (0.0 * input[0] + 55.0 * input[1] + 113.0 * input[2] + 67.0 * input[3] + 68.0 * input[4] + 24.0569347455645 * input[5]) + 0.0, 3.0)).toDouble();
+    double var56;
+    var56 = (pow(0.00009295334872448127 * (0.0 * input[0] + 51.0 * input[1] + 115.0 * input[2] + 64.0 * input[3] + 103.0 * input[4] + 24.22145328719723 * input[5]) + 0.0, 3.0)).toDouble();
+    double var57;
+    var57 = (pow(0.00009295334872448127 * (0.0 * input[0] + 67.0 * input[1] + 116.0 * input[2] + 61.0 * input[3] + 80.0 * input[4] + 17.008820853605474 * input[5]) + 0.0, 3.0)).toDouble();
+    double var58;
+    var58 = (pow(0.00009295334872448127 * (1.0 * input[0] + 50.0 * input[1] + 110.0 * input[2] + 75.0 * input[3] + 78.0 * input[4] + 32.74492829989838 * input[5]) + 0.0, 3.0)).toDouble();
+    double var59;
+    var59 = (pow(0.00009295334872448127 * (0.0 * input[0] + 62.0 * input[1] + 117.0 * input[2] + 68.0 * input[3] + 55.0 * input[4] + 26.575890590940308 * input[5]) + 0.0, 3.0)).toDouble();
+    double var60;
+    var60 = (pow(0.00009295334872448127 * (0.0 * input[0] + 68.0 * input[1] + 116.0 * input[2] + 65.0 * input[3] + 70.0 * input[4] + 23.875432525951556 * input[5]) + 0.0, 3.0)).toDouble();
+    double var61;
+    var61 = (pow(0.00009295334872448127 * (1.0 * input[0] + 48.0 * input[1] + 117.0 * input[2] + 70.0 * input[3] + 75.0 * input[4] + 23.72528616024974 * input[5]) + 0.0, 3.0)).toDouble();
+    double var62;
+    var62 = (pow(0.00009295334872448127 * (0.0 * input[0] + 82.0 * input[1] + 118.0 * input[2] + 55.0 * input[3] + 82.0 * input[4] + 21.33821063862216 * input[5]) + 0.0, 3.0)).toDouble();
+    double var63;
+    var63 = (pow(0.00009295334872448127 * (1.0 * input[0] + 64.0 * input[1] + 117.0 * input[2] + 82.0 * input[3] + 69.0 * input[4] + 19.735976492259113 * input[5]) + 0.0, 3.0)).toDouble();
+    double var64;
+    var64 = (pow(0.00009295334872448127 * (1.0 * input[0] + 69.0 * input[1] + 141.0 * input[2] + 67.0 * input[3] + 61.0 * input[4] + 27.11111111111111 * input[5]) + 0.0, 3.0)).toDouble();
+    double var65;
+    var65 = (pow(0.00009295334872448127 * (0.0 * input[0] + 52.0 * input[1] + 154.0 * input[2] + 88.0 * input[3] + 80.0 * input[4] + 23.030045351473923 * input[5]) + 0.0, 3.0)).toDouble();
+    double var66;
+    var66 = (pow(0.00009295334872448127 * (1.0 * input[0] + 52.0 * input[1] + 143.0 * input[2] + 79.0 * input[3] + 74.0 * input[4] + 22.22222222222222 * input[5]) + 0.0, 3.0)).toDouble();
+    double var67;
+    var67 = (pow(0.00009295334872448127 * (0.0 * input[0] + 56.0 * input[1] + 143.0 * input[2] + 82.0 * input[3] + 60.0 * input[4] + 25.60553633217993 * input[5]) + 0.0, 3.0)).toDouble();
+    double var68;
+    var68 = (pow(0.00009295334872448127 * (0.0 * input[0] + 75.0 * input[1] + 144.0 * input[2] + 70.0 * input[3] + 72.0 * input[4] + 22.862368541380885 * input[5]) + 0.0, 3.0)).toDouble();
+    double var69;
+    var69 = (pow(0.00009295334872448127 * (0.0 * input[0] + 56.0 * input[1] + 158.0 * input[2] + 88.0 * input[3] + 58.0 * input[4] + 22.3081499107674 * input[5]) + 0.0, 3.0)).toDouble();
+    double var70;
+    var70 = (pow(0.00009295334872448127 * (1.0 * input[0] + 65.0 * input[1] + 143.0 * input[2] + 77.0 * input[3] + 63.0 * input[4] + 26.446280991735534 * input[5]) + 0.0, 3.0)).toDouble();
+    double var71;
+    var71 = (pow(0.00009295334872448127 * (1.0 * input[0] + 85.0 * input[1] + 149.0 * input[2] + 71.0 * input[3] + 67.0 * input[4] + 24.973985431841832 * input[5]) + 0.0, 3.0)).toDouble();
+    double var72;
+    var72 = (pow(0.00009295334872448127 * (0.0 * input[0] + 61.0 * input[1] + 149.0 * input[2] + 84.0 * input[3] + 98.0 * input[4] + 22.038567493112946 * input[5]) + 0.0, 3.0)).toDouble();
+    double var73;
+    var73 = (pow(0.00009295334872448127 * (0.0 * input[0] + 54.0 * input[1] + 157.0 * input[2] + 94.0 * input[3] + 76.0 * input[4] + 34.13111342351717 * input[5]) + 0.0, 3.0)).toDouble();
+    double var74;
+    var74 = (pow(0.00009295334872448127 * (1.0 * input[0] + 61.0 * input[1] + 140.0 * input[2] + 87.0 * input[3] + 64.0 * input[4] + 24.386526444139612 * input[5]) + 0.0, 3.0)).toDouble();
+    double var75;
+    var75 = (pow(0.00009295334872448127 * (0.0 * input[0] + 76.0 * input[1] + 140.0 * input[2] + 72.0 * input[3] + 70.0 * input[4] + 22.862368541380885 * input[5]) + 0.

@@ -31,7 +31,6 @@ class ProfileHeader extends StatelessWidget {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: AppTheme.surface(context),
               shape: BoxShape.circle,
               border: Border.all(color: AppTheme.surface(context), width: 4),
               boxShadow: [
@@ -42,12 +41,22 @@ class ProfileHeader extends StatelessWidget {
                 ),
               ],
             ),
-            child: Center(
-              child: Icon(
-                Icons.person_rounded,
-                size: 56,
-                color: AppTheme.textHint(context),
-              ),
+            child: CircleAvatar(
+              radius: 46,
+              backgroundColor: AppTheme.surface(context),
+              backgroundImage: profile.avatarName != null
+                  ? AssetImage('assets/images/avatars/${profile.avatarName}')
+                  : null,
+              onBackgroundImageError: profile.avatarName != null
+                  ? (_, __) {}
+                  : null,
+              child: profile.avatarName == null
+                  ? Icon(
+                      Icons.person_rounded,
+                      size: 56,
+                      color: AppTheme.textHint(context),
+                    )
+                  : null,
             ),
           ),
           const SizedBox(width: 24),

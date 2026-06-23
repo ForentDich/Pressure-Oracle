@@ -68,19 +68,26 @@ class HistoryCard extends StatelessWidget {
             ),
           Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: (statusColor ?? metricInfo.color).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  metricInfo.icon,
-                  size: 24,
-                  color: statusColor ?? metricInfo.color,
-                ),
-              ),
+             Container(
+  width: 48,
+  height: 48,
+  decoration: BoxDecoration(
+    color: (statusColor ?? metricInfo.color).withOpacity(0.25),
+    borderRadius: BorderRadius.circular(12),
+    boxShadow: [
+      BoxShadow(
+        color: (statusColor ?? metricInfo.color).withOpacity(0.15),
+        blurRadius: 4,
+        offset: const Offset(0, 2),
+      ),
+    ],
+  ),
+  child: Icon(
+    metricInfo.icon,
+    size: 28,
+    color: statusColor ?? metricInfo.color,
+  ),
+),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -159,7 +166,7 @@ class HistoryCard extends StatelessWidget {
   _MetricInfo _getMetricInfo(BuildContext context) {
     switch (type) {
       case MetricType.pressure:
-        return _MetricInfo(context.l10n.metricPressure, Icons.favorite_border, AppColors.primary);
+        return _MetricInfo(context.l10n.metricPressure, Icons.favorite_border, const Color(0xFF764ba2));
       case MetricType.pulse:
         return _MetricInfo(context.l10n.metricPulse, Icons.monitor_heart_outlined, const Color(0xFFEF4444));
       case MetricType.weight:

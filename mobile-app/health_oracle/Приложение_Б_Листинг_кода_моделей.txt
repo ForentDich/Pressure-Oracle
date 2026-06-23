@@ -1,0 +1,385 @@
+Приложение Б
+Листинг кода моделей машинного обучения
+
+1) Модель классификации группы кровяного давления
+
+import itertools
+import pandas as pd
+import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import cross_val_score
+from imblearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV
+from imblearn.over_sampling import SMOTE
+from joblib import dump, load
+from sklearn.svm import SVC
+
+blood_pressure_df = pd.read_excel("datasets/PPG-BP dataset.xlsx", header = 1)
+
+blood_pressure_df.drop(columns = ["subject_ID", "Num.", "Height(cm)", "Weight(kg)"], inplace = True)
+
+blood_pressure_df.drop(columns = ["Diabetes", "cerebral infarction", "cerebrovascular disease"], inplace = True)
+
+def CategorizePressure(df, isSystolic):
+    if isSystolic:
+        categorizable = df["Systolic Blood Pressure(mmHg)"]
+        values = [120, (120, 139), (139, 159), (159, 179), 179]
+        _id = "Systolic"
+    else:
+        categorizable = df["Diastolic Blood Pressure(mmHg)"]
+        values = [60, (60 , 89), (89, 94), (94, 110), 110]
+        _id = "Diastolic"
+
+    conditions = [
+        (categorizable < values[0]),
+        categorizable.between(values[1][0], values[1][1]),
+        categorizable.between(values[2][0], values[2][1]),
+        categorizable.between(values[3][0], values[3][1]),
+        (categorizable > values[4]),
+    ]
+
+    choices = [
+        f"Пониженное {_id}",
+        f"Оптимальное {_id}",
+        f"Нормальное {_id}",
+        f"Высокое нормальное {_id}",
+        f"Умеренная гипертония {_id}"
+    ]
+
+    return np.select(conditions, choices, default = "Не определён")
+
+def CategorizePulse(df):
+    categorizable = df["Heart Rate(b/m)"]
+
+    conditions = [
+        (categorizable < 60),
+        categorizable.between(60, 70),
+        categorizable > 70
+    ]
+
+    choices = [
+        "Пониженный пульс",
+        "Нормальный пульс",
+        "Высокий пульс",
+    ]
+
+    return np.select(conditions, choices, default = "Не определён")
+
+def CategorizeBMI(df):
+    categorizable = df["BMI(kg/m^2)"]
+
+    conditions = [
+        (categorizable < 16),
+        categorizable.between(16, 18.444),
+        categorizable.between(18.5, 24.999),
+        categorizable.between(25, 29.999),
+        categorizable.between(30, 34.999),
+        categorizable.between(35, 39.999),
+        categorizable > 40
+    ]
+
+    choices = [
+        "Очень низкий BMI",
+        "Низкий BMI",
+        "Обычный BMI",
+        "Повышенный BMI",
+        "Высокий BMI",
+        "Очень высокий BMI",
+        "Чрезвычайно высокий BMI"
+    ]
+
+    return np.select(conditions, choices, default = "Не определён")
+
+df_copy = blood_pressure_df.copy()
+
+df_copy["Category SBP"] = CategorizePressure(df_copy, isSystolic = True)
+df_copy["Category DBP"] = CategorizePressure(df_copy, isSystolic = False)
+df_copy["Category Pulse"] = CategorizePulse(df_copy)
+df_copy["Category BMI"] = CategorizeBMI(df_copy)
+
+df_copy.drop(columns = ["Systolic Blood Pressure(mmHg)",
+                        "Diastolic Blood Pressure(mmHg)",
+                        "Heart Rate(b/m)", "BMI(kg/m^2)"], inplace = True)
+
+X = pd.DataFrame(df_copy)
+y = pd.DataFrame(df_copy[["Hypertension"]])
+
+X.drop(columns=["Hypertension"], inplace=True)
+
+X['Sex(M/F)'] = X['Sex(M/F)'].map({'Male': 0, 'Female': 1})
+
+y['Hypertension'] = y['Hypertension'].map({'Normal': 0, 'Prehypertension': 1, "Stage 1 hypertension": 2, "Stage 2 hypertension": 3})
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+svc_model = SVC(probability=True)
+
+params_grid = {
+    "kernel": ["poly", "linear"],
+    "C": [0.5, 0.6],
+    "class_weight": [
+        None,
+        'balanced',
+        {0: 1, 1: 5, 2: 1, 3: 1},
+        {0: 1, 1: 10, 2: 2, 3: 2}
+    ]
+}
+
+grid_search = GridSearchCV(
+    estimator=svc_model,
+    param_grid=params_grid,
+    scoring="f1_macro",
+    cv=5,
+    n_jobs=-1
+)
+
+grid_search.fit(X_train, y_train["Hypertension"])
+
+print(f"Best score: {grid_search.best_score_}")
+
+y_predictions = grid_search.best_estimator_.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_predictions)
+print(f"Accuracy: {accuracy:.4f}")
+
+print("\nClassification Report:")
+print(classification_report(y_test, y_predictions))
+
+cnf_matrix = confusion_matrix(y_test, y_predictions)
+
+def plot_confusion_matrix(cm, classes,
+                          normalize = False,
+                          title = "Confusion matrix",
+                          cmap = plt.get_cmap("Blues")):
+    plt.imshow(cm, interpolation = "nearest", cmap = cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation = 45)
+    plt.yticks(tick_marks, classes)
+    if normalize:
+        cm = cm.astype(float) / cm.sum(axis = 1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print("Confusion matrix, without normalization")
+    print(cm)
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, cm[i, j],
+                 horizontalalignment = "center",
+                 color = "white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel("True label")
+    plt.xlabel("Predicted label")
+
+plot_confusion_matrix(cnf_matrix, classes = ["0", "1", "2", "3"], title = "Confusion matrix")
+
+cv_scores = cross_val_score(grid_search.best_estimator_, X, y["Hypertension"], cv = 20, scoring = 'accuracy')
+print(f"Cross-validation scores: {cv_scores}")
+print(f"Mean CV accuracy: {cv_scores.mean():.4f} (+/- {cv_scores.std() * 2:.4f})")
+
+dump(grid_search.best_estimator_, "model.pkl")
+
+cols = ['Sex(M/F)', 'Age(year)', 'Systolic Blood Pressure(mmHg)',
+       'Diastolic Blood Pressure(mmHg)', 'Heart Rate(b/m)', 'BMI(kg/m^2)']
+
+vals = [[0, 20, 150, 70, 70, 24]]
+
+input_df = pd.DataFrame(vals, columns=cols)
+
+prediction = grid_search.best_estimator_.predict(input_df)
+print(prediction)
+
+
+2) Модель классификации наличия хронических заболеваний почек
+
+import itertools
+import featuretools as ft
+import pandas as pd
+import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
+from pandas.core.interchange.dataframe_protocol import DataFrame
+from sklearn.compose import ColumnTransformer
+
+from sklearn.preprocessing import PowerTransformer
+from woodwork.logical_types import Categorical
+from sklearn.preprocessing import StandardScaler
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
+from sklearn.preprocessing import LabelEncoder
+from sklearn.impute import SimpleImputer
+from sklearn.model_selection import cross_val_score
+from imblearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV
+from sklearn.preprocessing import FunctionTransformer
+from mlxtend.feature_selection import SequentialFeatureSelector
+from imblearn.over_sampling import SMOTE
+from joblib import dump, load
+
+df = pd.read_csv("datasets/data.csv")
+
+df.drop(columns=["Patient_Number", "Pregnancy"], inplace=True)
+
+def categorize_all(dataframe, categorizable_list, splits = 3):
+    ready_list = []
+    choices = []
+    for split in range(splits):
+        choices.append(split)
+
+    for category in categorizable_list:
+        categorizable = dataframe[category]
+        min = categorizable.min()
+        max = categorizable.max()
+        diff = max - min
+
+        conditions = []
+        for _ in range(splits):
+            conditions.append((categorizable >= min) & (categorizable <= min + diff / splits))
+            min += diff / splits
+        ready_list.append(np.select(conditions, choices, default=-1))
+
+    return ready_list
+
+def CategorizeBMI(df):
+    categorizable = df["BMI"]
+
+    conditions = [
+        (categorizable < 16),
+        categorizable.between(16, 18.444),
+        categorizable.between(18.5, 24.999),
+        categorizable.between(25, 29.999),
+        categorizable.between(30, 34.999),
+        categorizable.between(35, 39.999),
+        categorizable > 40
+    ]
+
+    choices = [
+        "Очень низкий BMI",
+        "Низкий BMI",
+        "Обычный BMI",
+        "Повышенный BMI",
+        "Высокий BMI",
+        "Очень высокий BMI",
+        "Чрезвычайно высокий BMI"
+    ]
+
+    return np.select(conditions, choices, default = "Не определён")
+
+df_copy = df.copy()
+
+df_copy.loc[:, "activity_salt"] = df_copy["Physical_activity"] - df_copy["salt_content_in_the_diet"]
+df_copy.loc[:, "salt_alcohol"] = df_copy["salt_content_in_the_diet"] / df_copy["alcohol_consumption_per_day"]
+df_copy.loc[:, "level_smoking"] = df_copy["Level_of_Hemoglobin"] * (2 * df_copy["Smoking"] - 1)
+df_copy.loc[:, "salt_bmi"] = df_copy["salt_content_in_the_diet"] / df_copy["BMI"]
+df_copy.loc[:, "alcohol_bmi_divide"] = df_copy["alcohol_consumption_per_day"] / df_copy["BMI"]
+df_copy.loc[:, "alcohol_bmi_multiplicative"] = df_copy["alcohol_consumption_per_day"] * df_copy["BMI"]
+df_copy.loc[:, "alcohol_age_divide"] = df_copy["alcohol_consumption_per_day"] / df_copy["Age"]
+df_copy.loc[:, "alcohol_age_multiplicative"] = df_copy["alcohol_consumption_per_day"] * df_copy["Age"]
+df_copy.loc[:, "blood_alcohol_mult_1000"] = df_copy["Blood_Pressure_Abnormality"] / df_copy["alcohol_consumption_per_day"] * 1000
+df_copy.loc[:, "salt_age"] = df_copy["salt_content_in_the_diet"] / df_copy["Age"]
+df_copy.loc[:, "activity_age"] = df_copy["Physical_activity"] / df_copy["Age"]
+df_copy.loc[:, "activity_salt_sex"] = (df_copy["Physical_activity"] - df_copy["salt_content_in_the_diet"]) * (2 * df_copy["Sex"] - 1)
+
+df_copy.loc[:, "category_GPC"] = categorize_all(df_copy, ["Genetic_Pedigree_Coefficient"], splits=4)[0]
+
+category_list = ["BMI", "Physical_activity", "salt_content_in_the_diet",
+                 "alcohol_consumption_per_day"]
+
+ready_list = categorize_all(df, category_list)
+for i in range(category_list.__len__()):
+    df_copy[f"Category {category_list[i]}"] = ready_list[i]
+
+df_copy["Category BMI"] = CategorizeBMI(df_copy)
+
+df_copy.drop(columns=category_list, inplace=True)
+
+df_copy.loc[:, "minus_log_bmi"] = -np.log2(df_copy["BMI"])
+df_copy.loc[:, "gpc_multi_hemoglobin"] = df_copy["Genetic_Pedigree_Coefficient"] * df["Level_of_Hemoglobin"]
+df_copy.loc[:, "gpc_multi_hemoglobin_abnormal"] = df_copy["gpc_multi_hemoglobin"] * (2 * df_copy["Blood_Pressure_Abnormality"] - 1)
+df_copy.loc[:, "minus_activity_sqrt"] = -df_copy["Physical_activity"]**(1/2)
+df_copy.loc[:, "minus_alcohol_sqrt"] = -df_copy["alcohol_consumption_per_day"]**(1/2)
+df_copy.loc[:, "minus_alcohol_sqrt_abnormal"] = df_copy["minus_alcohol_sqrt"] * (2 * df_copy["Blood_Pressure_Abnormality"] - 1)
+
+X = pd.DataFrame(df_copy)
+X.drop(columns=["Chronic_kidney_disease", "Adrenal_and_thyroid_disorders"], inplace=True)
+y = pd.DataFrame(df_copy["Chronic_kidney_disease"])
+
+X = X.astype("float32")
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+pipeline = Pipeline([
+    ("imputer", SimpleImputer(strategy="median", add_indicator=True)),
+    ("rf", RandomForestClassifier(random_state=42))
+])
+
+params_grid = {
+    "rf__n_estimators": list(range(1, 100)),
+    "rf__max_depth": list(range(1, 20)),
+    "rf__min_samples_leaf": [1, 2],
+}
+
+grid_search = GridSearchCV(
+    estimator=pipeline,
+    param_grid=params_grid,
+    scoring="roc_auc",
+    cv=5,
+    n_jobs=-1
+)
+
+grid_search.fit(X_train, y_train["Chronic_kidney_disease"].to_numpy().ravel())
+
+print(f"Best score: {grid_search.best_score_}")
+
+y_predictions = grid_search.best_estimator_.predict(X_test)
+
+cnf_matrix = confusion_matrix(y_test["Chronic_kidney_disease"].to_numpy().ravel(), y_predictions)
+
+def plot_confusion_matrix(cm, classes,
+                          normalize = False,
+                          title = "Confusion matrix",
+                          cmap = plt.get_cmap("Blues")):
+    plt.imshow(cm, interpolation = "nearest", cmap = cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation = 45)
+    plt.yticks(tick_marks, classes)
+    if normalize:
+        cm = cm.astype(float) / cm.sum(axis = 1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print("Confusion matrix, without normalization")
+    print(cm)
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, cm[i, j],
+                 horizontalalignment = "center",
+                 color = "white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel("True label")
+    plt.xlabel("Predicted label")
+
+plot_confusion_matrix(cnf_matrix, classes = ["0", "1"], title = "Confusion matrix")
+
+dump(grid_search.best_estimator_, "second_model.pkl")

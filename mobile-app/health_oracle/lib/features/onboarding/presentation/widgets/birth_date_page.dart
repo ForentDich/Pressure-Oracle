@@ -38,7 +38,8 @@ class BirthDatePage extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -86,92 +87,106 @@ class BirthDatePage extends StatelessWidget {
 
   String _formatDate(DateTime? date) {
     if (date == null) return '';
-    return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+    final months = [
+      '', 'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+    ];
+    return '${date.day} ${months[date.month]} ${date.year}';
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Column(
-        children: [
-          const Spacer(flex: 2),
-          // Icon
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.cake_rounded,
-              size: 56,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 48),
-          // Title
-          Text(
-            context.l10n.onboardingBirthDateTitle,
-            style: TextStyles.headlineLarge.copyWith(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          // Subtitle
-          Text(
-            context.l10n.onboardingBirthDateSubtitle,
-            style: TextStyles.bodyMedium.copyWith(
-              color: Colors.white.withValues(alpha: 0.85),
-              fontSize: 17,
-              height: 1.4,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 48),
-          // Date selector
-          GestureDetector(
-            onTap: () => _selectDate(context),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height * 0.65,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 40),
+            // Icon
+            Container(
+              width: 120,
+              height: 120,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                color: Colors.white.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.calendar_today_rounded,
-                    color: selectedDate != null
-                        ? Colors.black87
-                        : Colors.black.withValues(alpha: 0.3),
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    selectedDate != null
-                        ? _formatDate(selectedDate)
-                        : context.l10n.onboardingSelectDate,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+              child: const Icon(
+                Icons.cake_rounded,
+                size: 56,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 48),
+            // Title
+            Text(
+              context.l10n.onboardingBirthDateTitle,
+              style: TextStyles.headlineLarge.copyWith(
+                color: Colors.white,
+                fontSize: 32,
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            // Subtitle
+            Text(
+              context.l10n.onboardingBirthDateSubtitle,
+              style: TextStyles.bodyMedium.copyWith(
+                color: Colors.white.withValues(alpha: 0.85),
+                fontSize: 17,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 48),
+            // Date selector
+            GestureDetector(
+              onTap: () => _selectDate(context),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24, vertical: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.calendar_today_rounded,
                       color: selectedDate != null
                           ? Colors.black87
                           : Colors.black.withValues(alpha: 0.3),
+                      size: 20,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        selectedDate != null
+                            ? _formatDate(selectedDate)
+                            : context.l10n.onboardingSelectDate,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: selectedDate != null
+                              ? Colors.black87
+                              : Colors.black.withValues(alpha: 0.3),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const Spacer(flex: 3),
-        ],
+            const SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }

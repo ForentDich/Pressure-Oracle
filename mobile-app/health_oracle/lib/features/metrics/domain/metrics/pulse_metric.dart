@@ -8,7 +8,7 @@ class PulseMetric implements MetricInterface {
   String get title => 'ПУЛЬС';
   
   @override
-  String get description => 'Пульс показывает частоту сердечных сокращений в минуту. Нормальный пульс в покое — 60-100 ударов в минуту.';
+  String get description => 'Пульс отображает частоту сердечных сокращений и позволяет оценивать ритм работы сердца.';
   
   @override
   String get unit => 'уд/мин';

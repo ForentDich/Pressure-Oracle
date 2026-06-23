@@ -52,6 +52,10 @@ class ReminderService {
     await box.delete(id);
   }
 
+  static Future<void> deleteAll() async {
+    await box.clear();
+  }
+
   static Future<void> toggleActive(String id) async {
     final reminder = box.get(id);
     if (reminder != null) {
@@ -77,6 +81,6 @@ class ReminderService {
   }
 
   static int get activeCount => getActive().length;
-  
+
   static int get totalCount => box.length;
 }

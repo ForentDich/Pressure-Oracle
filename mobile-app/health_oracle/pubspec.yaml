@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 0.6.7+1
 
 environment:
   sdk: ^3.9.2
@@ -37,10 +37,20 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   wolt_modal_sheet: ^0.11.0
+
+  path_provider: ^2.1.0         
+  share_plus: ^7.2.1            
+  csv: ^5.1.0                   
+  pdf: ^3.10.4                  
+  printing: ^5.11.1   
+  open_file: ^3.4.0
+  permission_handler: ^11.0.1          
   
   # Local storage
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  device_info_plus: ^9.1.2
+  
   
   # Notifications
   flutter_local_notifications: ^18.0.1
@@ -60,6 +70,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
   
   # Code generation for Hive
   build_runner: ^2.4.13
@@ -79,6 +90,7 @@ flutter:
 
   assets:
     - assets/models/
+    - assets/images/avatars/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -107,6 +119,10 @@ flutter:
           weight: 600
         - asset: assets/fonts/Manrope-Bold.ttf
           weight: 700
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+          weight: 400
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf
@@ -115,3 +131,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  adaptive_icon_background: "#FFFFFF"   # фон для адаптивной иконки Android (можно цвет или изображение)
+  adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"   # если нужна адаптивная передняя часть (опционально)

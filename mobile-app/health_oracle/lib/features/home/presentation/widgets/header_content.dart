@@ -14,28 +14,52 @@ class HeaderContent extends StatelessWidget {
         : context.l10n.defaultUserName;
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _getGreetingByTime(context),
-              style: TextStyles.titleMedium.copyWith(
-                color: Colors.white,
+  child: Padding(
+    padding: const EdgeInsets.all(20),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center, 
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min, 
+            children: [
+              Text(
+                _getGreetingByTime(context),
+                style: TextStyles.titleMedium.copyWith(
+                  color: Colors.white,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              displayName,
-              style: TextStyles.headlineLarge.copyWith(
-                color: Colors.white,
+              const SizedBox(height: 4),
+              Text(
+                displayName,
+                style: TextStyles.headlineLarge.copyWith(
+                  color: Colors.white,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-          ],
+              
+            ],
+          ),
         ),
-      ),
+        const SizedBox(width: 16),
+        _buildAvatar(profile),
+      ],
+    ),
+  ),
+);
+  }
+
+  Widget _buildAvatar(profile) {
+    if (profile != null && profile.avatarName != null) {
+      return CircleAvatar(
+        radius: 40,
+        backgroundImage: AssetImage('assets/images/avatars/${profile.avatarName}'),
+      );
+    }
+    return CircleAvatar(
+      radius: 40,
+      backgroundColor: Colors.white.withValues(alpha: 0.2),
+      child: const Icon(Icons.person_rounded, color: Colors.white, size: 32),
     );
   }
 

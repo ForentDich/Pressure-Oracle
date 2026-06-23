@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'l10n/app_localizations.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/history/presentation/pages/history_page.dart';
@@ -19,16 +22,17 @@ import 'data/services/theme_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Убрали запрос storage permission - больше не нужен
+  
   await ProfileService.init();
   await EntryService.init();
   await ReminderService.init();
   await NotificationService.init();
   await ThemeService.init();
-  // Модели загружаем без await — не блокируем запуск приложения
   PredictionService.init();
   runApp(const MyApp());
 }
-
 /// Проверяет, нужен ли onboarding
 bool get needsOnboarding => !ProfileService.hasProfile();
 

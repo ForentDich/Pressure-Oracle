@@ -24,6 +24,9 @@ class HypertensionResult {
   final DateTime? inputPressureAt;
   final DateTime? inputPulseAt;
 
+  // Флаг гипотензии
+  final bool isHypotension;
+
   HypertensionResult({
     required this.classIndex,
     required this.label,
@@ -39,6 +42,7 @@ class HypertensionResult {
     this.inputIsLatest,
     this.inputPressureAt,
     this.inputPulseAt,
+    this.isHypotension = false, // значение по умолчанию
   });
 
   /// Уровень серьёзности (0 = норма, 3 = тяжёлая).
@@ -71,11 +75,8 @@ class PredictionService {
   static RandomForestModel? _kidneyModel;
   static bool _initialized = false;
 
-  /// Инициализация: загружает JSON-модели из assets.
   static Future<void> init() async {
     if (_initialized) return;
-    // Hypertension model is now compiled natively as SVC
-    // _hypertensionModel = await RandomForestModel.load(...);
 
     try {
       _kidneyModel = await RandomForestModel.load(
@@ -90,26 +91,17 @@ class PredictionService {
     _initialized = true;
   }
 
-  static bool get isHypertensionModelReady => true; // Using SVC model natively
+  static bool get isHypertensionModelReady => true;
   static bool get isKidneyModelReady => _kidneyModel != null;
 
   // ─── Модель 1: гипертония ───────────────────────────────────
 
-  /// Предсказание гипертонии.
-  /// Если [isLatest] = true, использует самую свежую запись.
-  /// Иначе — средние значения за последние 7 дней.
-  /// Возвращает null если недостаточно данных.
   static ({double sbp, double dbp}) _extractPressurePair(HealthEntry e) {
     final a = e.value;
     final b = e.secondaryValue;
-
-    // если второе значение отсутствует — используем одно значение для обоих,
-    // чтобы НЕ подставлять "80" и не ломать прогноз.
     final x = b ?? a;
-
     final sbp = a >= x ? a : x;
     final dbp = a >= x ? x : a;
-
     return (sbp: sbp, dbp: dbp);
   }
 
@@ -118,6 +110,38 @@ class PredictionService {
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return list.isEmpty ? null : list.first;
   }
+
+  // ─── Вспомогательные методы для гипотензии ──────────────────
+
+  static bool _isHypotension(double sbp, double dbp) {
+    return sbp < 100 || dbp < 60;
+  }
+
+  static HypertensionResult _buildHypotensionResult({
+    required double sbp,
+    required double dbp,
+    required double pulse,
+    required double bmi,
+    required bool isLatest,
+  }) {
+    return HypertensionResult(
+      classIndex: 0,
+      label: 'Гипотензия',
+      probabilities: [1.0, 0.0, 0.0, 0.0],
+      sbpCategory: HealthCategorizer.sbpLabels[HealthCategorizer.categorizeSBP(sbp)],
+      dbpCategory: HealthCategorizer.dbpLabels[HealthCategorizer.categorizeDBP(dbp)],
+      pulseCategory: HealthCategorizer.pulseLabels[HealthCategorizer.categorizePulse(pulse)],
+      bmiCategory: HealthCategorizer.bmiLabels[HealthCategorizer.categorizeBMI(bmi)],
+      bmi: bmi,
+      inputSbp: sbp,
+      inputDbp: dbp,
+      inputPulse: pulse,
+      inputIsLatest: isLatest,
+      isHypotension: true,
+    );
+  }
+
+  // ─── Основной метод прогноза гипертонии (с гипотензией) ──────
 
   static HypertensionResult? predictHypertension({bool isLatest = false}) {
     if (!isHypertensionModelReady) return null;
@@ -151,20 +175,30 @@ class PredictionService {
       final sex = profile.sex ?? true;
       final bmi = HealthCategorizer.calculateBMI(height, weight);
 
+      // Проверка на гипотензию
+      if (_isHypotension(sbp, dbp)) {
+        return _buildHypotensionResult(
+          sbp: sbp,
+          dbp: dbp,
+          pulse: pulse,
+          bmi: bmi,
+          isLatest: true,
+        );
+      }
+
       final catSBP = HealthCategorizer.categorizeSBP(sbp);
       final catDBP = HealthCategorizer.categorizeDBP(dbp);
       final catPulse = HealthCategorizer.categorizePulse(pulse);
       final catBMI = HealthCategorizer.categorizeBMI(bmi);
       final sexEncoded = HealthCategorizer.encodeSex(sex);
 
-      // Model uses raw variables instead of labeled categories
       final features = [
         sexEncoded.toDouble(),
         age.toDouble(),
-        sbp, // Systolic Blood Pressure(mmHg)
-        dbp, // Diastolic Blood Pressure(mmHg)
-        pulse, // Heart Rate(b/m)
-        bmi, // BMI(kg/m^2)
+        sbp,
+        dbp,
+        pulse,
+        bmi,
       ];
 
       final classIdx = HypertensionSvcModel.predict(features);
@@ -185,6 +219,7 @@ class PredictionService {
         inputIsLatest: true,
         inputPressureAt: pressureSource.createdAt,
         inputPulseAt: pulseSource.createdAt,
+        isHypotension: false,
       );
     }
 
@@ -214,13 +249,23 @@ class PredictionService {
     final sex = profile.sex ?? true;
     final bmi = HealthCategorizer.calculateBMI(height, weight);
 
+    // Проверка на гипотензию
+    if (_isHypotension(sbp, dbp)) {
+      return _buildHypotensionResult(
+        sbp: sbp,
+        dbp: dbp,
+        pulse: pulse,
+        bmi: bmi,
+        isLatest: false,
+      );
+    }
+
     final catSBP = HealthCategorizer.categorizeSBP(sbp);
     final catDBP = HealthCategorizer.categorizeDBP(dbp);
     final catPulse = HealthCategorizer.categorizePulse(pulse);
     final catBMI = HealthCategorizer.categorizeBMI(bmi);
     final sexEncoded = HealthCategorizer.encodeSex(sex);
 
-    // Using raw continuous variables
     final features = [
       sexEncoded.toDouble(),
       age.toDouble(),
@@ -248,10 +293,11 @@ class PredictionService {
       inputIsLatest: false,
       inputPressureAt: _latestByCreatedAt(pressureList)?.createdAt,
       inputPulseAt: _latestByCreatedAt(pulseList)?.createdAt,
+      isHypotension: false,
     );
   }
 
-  /// Предсказание гипертонии из ручных значений.
+  /// Предсказание гипертонии из ручных значений (с гипотензией).
   static HypertensionResult? predictHypertensionManual({
     required double systolic,
     required double diastolic,
@@ -264,6 +310,16 @@ class PredictionService {
     if (!isHypertensionModelReady) return null;
 
     final bmi = HealthCategorizer.calculateBMI(heightCm, weightKg);
+
+    if (_isHypotension(systolic, diastolic)) {
+      return _buildHypotensionResult(
+        sbp: systolic,
+        dbp: diastolic,
+        pulse: pulse,
+        bmi: bmi,
+        isLatest: false,
+      );
+    }
 
     final features = [
       HealthCategorizer.encodeSex(isMale).toDouble(),
@@ -290,12 +346,12 @@ class PredictionService {
       bmiCategory: HealthCategorizer.bmiLabels[
           HealthCategorizer.categorizeBMI(bmi)],
       bmi: bmi,
+      isHypotension: false,
     );
   }
 
   // ─── Модель 2: хрон. болезни почек ──────────────────────────
 
-  /// Предсказание риска хрон. болезни почек из анкеты.
   static KidneyResult? predictKidney({
     required int bpAbnormality,
     required double hemoglobin,

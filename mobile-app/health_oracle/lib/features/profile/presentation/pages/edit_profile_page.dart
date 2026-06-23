@@ -5,6 +5,7 @@ import '../../../../core/theme/text_styles.dart';
 import '../../../../core/i18n/l10n_extension.dart';
 import '../../../../data/data.dart';
 import '../widgets/edit_profile_widgets.dart';
+import '../widgets/avatar_picker_modal.dart';
 
 class EditProfilePage extends StatefulWidget {
   final UserProfile profile;
@@ -23,6 +24,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _heightController;
   DateTime? _birthDate;
   bool? _sex;
+  String? _avatarName;
 
   @override
   void initState() {
@@ -33,6 +35,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
     _birthDate = widget.profile.birthDate;
     _sex = widget.profile.sex;
+    _avatarName = widget.profile.avatarName;
   }
 
   @override
@@ -62,12 +65,29 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
   }
 
+  Future<void> _pickAvatar() async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => AvatarPickerModal(
+        currentAvatarName: _avatarName,
+        onAvatarSelected: (name) {
+          setState(() {
+            _avatarName = name;
+          });
+        },
+      ),
+    );
+  }
+
   Future<void> _save() async {
     final newProfile = UserProfile(
       firstName: _firstNameController.text.trim(),
       birthDate: _birthDate,
       height: double.tryParse(_heightController.text),
       sex: _sex,
+      avatarName: _avatarName,
     );
     
     await ProfileService.saveProfile(newProfile);
@@ -143,39 +163,46 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           children: [
                             // Avatar edit
                             Center(
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    width: 100,
-                                    height: 100,
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.surfaceVariant(context),
-                                      shape: BoxShape.circle,
+                              child: GestureDetector(
+                                onTap: _pickAvatar,
+                                child: Stack(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 50,
+                                      backgroundColor: AppTheme.surfaceVariant(context),
+                                      backgroundImage: _avatarName != null
+                                          ? AssetImage('assets/images/avatars/$_avatarName')
+                                          : null,
+                                      onBackgroundImageError: _avatarName != null
+                                          ? (_, __) {}
+                                          : null,
+                                      child: _avatarName == null
+                                          ? Icon(
+                                              Icons.person_rounded,
+                                              size: 52,
+                                              color: AppTheme.textHint(context),
+                                            )
+                                          : null,
                                     ),
-                                    child: Icon(
-                                      Icons.person_rounded,
-                                      size: 52,
-                                      color: AppTheme.textHint(context),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color:  Color(0xFF8E2DE2),
-                                        shape: BoxShape.circle,
-                                        border: Border.all(color: AppTheme.surface(context), width: 3),
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color:  Color(0xFF8E2DE2),
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: AppTheme.surface(context), width: 3),
+                                        ),
+                                        child: const Icon(
+                                          Icons.camera_alt,
+                                          color: Colors.white,
+                                          size: 18,
+                                        ),
                                       ),
-                                      child: const Icon(
-                                        Icons.camera_alt,
-                                        color: Colors.white,
-                                        size: 18,
-                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                             const SizedBox(height: 32),

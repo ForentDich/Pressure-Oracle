@@ -17,11 +17,19 @@ class UserProfile extends HiveObject {
   @HiveField(4)
   bool? sex;
 
+  @HiveField(5)
+  double? weight;
+
+  @HiveField(6)
+  String? avatarName;
+
   UserProfile({
     required this.firstName,
     this.birthDate,
     this.height,
     this.sex,
+    this.weight,
+    this.avatarName,
   });
 
   /// Возраст в годах
@@ -42,12 +50,16 @@ class UserProfile extends HiveObject {
     DateTime? birthDate,
     double? height,
     bool? sex,
+    double? weight,
+    String? avatarName,
   }) {
     return UserProfile(
       firstName: firstName ?? this.firstName,
       birthDate: birthDate ?? this.birthDate,
       height: height ?? this.height,
       sex: sex ?? this.sex,
+      weight: weight ?? this.weight,
+      avatarName: avatarName ?? this.avatarName,
     );
   }
 }

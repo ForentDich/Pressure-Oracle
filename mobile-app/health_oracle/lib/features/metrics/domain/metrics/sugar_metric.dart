@@ -8,7 +8,7 @@ class SugarMetric implements MetricInterface {
   String get title => 'САХАР';
   
   @override
-  String get description => 'Уровень глюкозы в крови. Нормальный показатель натощак — 3.9-5.5 ммоль/л.';
+  String get description => 'Уровень глюкозы в крови отражает концентрацию сахара и является главным показателем углеводного обмена в организме.';
   
   @override
   String get unit => 'ммоль/л';

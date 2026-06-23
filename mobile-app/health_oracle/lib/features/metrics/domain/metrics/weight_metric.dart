@@ -8,7 +8,7 @@ class WeightMetric implements MetricInterface {
   String get title => 'ВЕС';
   
   @override
-  String get description => 'Регулярное отслеживание веса помогает контролировать здоровье и вовремя замечать изменения.';
+  String get description => 'Регулярное отслеживание веса помогает контролировать физическую форму и вовремя замечать изменения в организме.';
   
   @override
   String get unit => 'кг';
